@@ -14,7 +14,7 @@ Prerequisites: Dependencies to install manually (run once):<BR />
 `cmake ..`<BR />
 `make`<BR />
 <BR />
-To do a new build rm -rf build or delete the build folder.<BR /><BR />
+To do a new build rm -rf build or delete the build folder. cmake dotdot like above, and make<BR /><BR />
 The tool is compatible with Linux, and Soon(tm) Android, and Windows (with appropriate SDL2 setup).
 
 Running the Tool:
