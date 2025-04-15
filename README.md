@@ -5,9 +5,8 @@ Why this? The equation.txt is robust and is intended to work with any formula or
 # Overview<BR />
 This physics visualization tool allows physicists and mathematicians to simulate and visualize a variety of physical systems, ranging from classical mechanics (e.g., projectile motion, harmonic oscillators) to general relativity (e.g., Ricci tensors, Schwarzschild metric) and quantum mechanics (e.g., hydrogen wavefunction). The tool supports both particle-based simulations and grid-based scalar field visualizations, controlled through a configuration file (equations.txt) and an interactive 3D OpenGL interface.
 Straightforward Usage Instructions
-1. Installation and Setup
-Prerequisites:
-# Dependencies to install manually (run once):
+# 1. Installation and Setup
+Prerequisites: Dependencies to install manually (run once):
 `sudo apt update`<BR />
 `sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev`<BR />
 <BR />
@@ -42,7 +41,7 @@ Physics Visualization Controls:
 - X: Decrease grid size (lower resolution, min 5)
 - C: Center camera (reset angle and zoom to default)
 
-2. Configuring Equations (equations.txt)
+# 2. Configuring Equations (equations.txt)
 File Structure:
 The tool reads equations and parameters from equations.txt.
 
@@ -131,13 +130,13 @@ Cosmological_Expansion: H0
 
 Example: E_equals_mc2 custom mass=1.0 c=299792458
 
-3. Running the Visualization
+# 3. Running the Visualization
 Window:
 A window titled "Physics Visualization" (800x600) opens, displaying the simulation.
 
 The current equation name is shown in the top-left corner.
 
-4. Output
+# 4. Output
 Simulation Data:
 Output files are generated in the output/ directory as output/equation_<name>.txt.
 
