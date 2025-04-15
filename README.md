@@ -1,4 +1,4 @@
-Overview
+# Overview<BR />
 This physics visualization tool allows physicists and mathematicians to simulate and visualize a variety of physical systems, ranging from classical mechanics (e.g., projectile motion, harmonic oscillators) to general relativity (e.g., Ricci tensors, Schwarzschild metric) and quantum mechanics (e.g., hydrogen wavefunction). The tool supports both particle-based simulations and grid-based scalar field visualizations, controlled through a configuration file (equations.txt) and an interactive 3D OpenGL interface.
 Straightforward Usage Instructions
 1. Installation and Setup
