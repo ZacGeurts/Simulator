@@ -1,6 +1,6 @@
 Currently proof of concept stage. Pressing 2 crashes the program so stick to 134 and 5.
 It shows a cube with colored points. Expect more detail within the coming days.
-Why this? The equation.txt is robust and is intended to work with any formula or equation. So if you find something online or want to crate your own, it can be pasted in and should know how to parse it for a visual display. The real meat is in the output folder where the calculations export. These can probably go into matlab or something. I'll be doing more research into my own project as I go along.
+Why this? The equation.txt is robust and is intended to work with any formula or equation. So if you find something online or want to create your own, it can be pasted in and should know how to parse it for a visual display. The real meat is in the output folder where the calculations export. These can probably go into matlab or something. I'll be doing more research into my own project as I go along.
 
 # Overview<BR />
 This physics visualization tool allows physicists and mathematicians to simulate and visualize a variety of physical systems, ranging from classical mechanics (e.g., projectile motion, harmonic oscillators) to general relativity (e.g., Ricci tensors, Schwarzschild metric) and quantum mechanics (e.g., hydrogen wavefunction). The tool supports both particle-based simulations and grid-based scalar field visualizations, controlled through a configuration file (equations.txt) and an interactive 3D OpenGL interface.
