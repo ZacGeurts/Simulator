@@ -8,6 +8,10 @@ sudo apt update<BR />
 sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev
 <BR />
 <BR />
+mkdir build & cd build<BR />
+cmake ..<BR />
+make<BR />
+<BR /><BR />
 The tool is compatible with Linux, Android, and Windows (with appropriate SDL2 setup).
 
 Running the Tool:
