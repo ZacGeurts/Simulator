@@ -7,6 +7,7 @@ Prerequisites:
 sudo apt update<BR />
 sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev
 <BR />
+<BR />
 The tool is compatible with Linux, Android, and Windows (with appropriate SDL2 setup).
 
 Running the Tool:
@@ -137,7 +138,7 @@ For particle-based equations: Lists particle positions and velocities.
 For grid-based equations: Lists scalar field values at each grid point.
 
 Logs:
-Program logs are written to log.txt, including initialization, equation switches, and errors.
+Issues are written to log.txt
 
 Deep-Dive for Advanced Users
 Simulation Mechanics
