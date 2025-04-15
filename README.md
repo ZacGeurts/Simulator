@@ -6,7 +6,7 @@ Why this? The equation.txt is robust and is intended to work with any formula or
 This physics visualization tool allows physicists and mathematicians to simulate and visualize a variety of physical systems, ranging from classical mechanics (e.g., projectile motion, harmonic oscillators) to general relativity (e.g., Ricci tensors, Schwarzschild metric) and quantum mechanics (e.g., hydrogen wavefunction). The tool supports both particle-based simulations and grid-based scalar field visualizations, controlled through a configuration file (equations.txt) and an interactive 3D OpenGL interface.
 Straightforward Usage Instructions
 # 1. Installation and Setup
-Prerequisites: Dependencies to install manually (run once):
+Prerequisites: Dependencies to install manually (run once):<BR />
 `sudo apt update`<BR />
 `sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev`<BR />
 <BR />
