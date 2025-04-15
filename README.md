@@ -12,7 +12,8 @@ mkdir build & cd build<BR />
 cmake ..<BR />
 make<BR />
 <BR /><BR />
-The tool is compatible with Linux, Android, and Windows (with appropriate SDL2 setup).
+To do a new build rm -rf build or delete the build folder.<BR /><BR />
+The tool is compatible with Linux, and Soon(tm) Android, and Windows (with appropriate SDL2 setup).
 
 Running the Tool:
 Place your equations.txt file in the same directory as the executable.
