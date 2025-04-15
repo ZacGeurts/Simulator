@@ -8,8 +8,8 @@ Straightforward Usage Instructions
 1. Installation and Setup
 Prerequisites:
 # Dependencies to install manually (run once):
-`sudo apt update'<BR />
-'sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev`<BR />
+`sudo apt update`<BR />
+`sudo apt install -y make cmake build-essential libsdl2-dev libglu1-mesa-dev mingw-w64 wget unzip libsdl2-ttf-dev`<BR />
 <BR />
 `mkdir build & cd build`<BR />
 `cmake ..`<BR />
