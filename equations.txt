@@ -1,0 +1,42 @@
+# Physics equations for visualization
+# Original equations (Ricci-like)
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=1.0 D_t=0.1 eps_5D=0.01  # Ricci tensor 1
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=2.0 D_t=0.2 eps_5D=0.02  # Ricci tensor 2
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=1.5 D_t=0.15 eps_5D=0.015  # Ricci tensor 3
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=3.0 D_t=0.3 eps_5D=0.03  # Ricci tensor 4
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=0.5 D_t=0.05 eps_5D=0.005  # Ricci tensor 5
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=2.5 D_t=0.25 eps_5D=0.025  # Ricci tensor 6
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=1.2 D_t=0.12 eps_5D=0.012  # Ricci tensor 7
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=1.8 D_t=0.18 eps_5D=0.018  # Ricci tensor 8
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=2.2 D_t=0.22 eps_5D=0.022  # Ricci tensor 9
+∇μR3Dμν(t)=H1D(α)gμν+I3Dμν−4D(t)+ϵ5Dμν(t) H1D=0.8 D_t=0.08 eps_5D=0.008  # Ricci tensor 10
+
+# Refined equations (curvature-like)
+Refined_Eq1 refined phi=1.0 G=1.0 k4=0.1 k5=0.01  # Curvature 1
+Refined_Eq2 refined phi=1.5 G=0.8 k4=0.2 k5=0.02  # Curvature 2
+Refined_Eq3 refined phi=2.0 G=1.2 k4=0.15 k5=0.015  # Curvature 3
+Refined_Eq4 refined phi=0.5 G=0.9 k4=0.05 k5=0.005  # Curvature 4
+Refined_Eq5 refined phi=1.8 G=1.1 k4=0.12 k5=0.012  # Curvature 5
+Refined_Eq6 refined phi=1.2 G=0.7 k4=0.08 k5=0.008  # Curvature 6
+Refined_Eq7 refined phi=2.5 G=1.3 k4=0.18 k5=0.018  # Curvature 7
+Refined_Eq8 refined phi=0.8 G=0.6 k4=0.07 k5=0.007  # Curvature 8
+Refined_Eq9 refined phi=1.6 G=1.0 k4=0.09 k5=0.009  # Curvature 9
+Refined_Eq10 refined phi=1.4 G=0.85 k4=0.11 k5=0.011  # Curvature 10
+
+# Custom equations (famous physics equations)
+E_equals_mc2 custom mass=1.0 c=299792458  # E=mc^2
+Newton_Gravity custom G=6.67430e-11 mass1=5.972e24 mass2=7.342e22 r=384400e3  # Gravitational potential
+Wave_Equation custom wave_speed=343.0 freq=1.0  # Wave equation v=fλ
+Planck_Energy custom h=6.62607015e-34 freq=1.0e15  # E=hf
+Kepler_Third custom a=1.496e11 T=365.25  # T^2/a^3
+Schwarzschild custom M=1.989e30 r=1.0e9  # Schwarzschild radius
+Spherical_Harmonic custom l=2 m=1  # Y_l^m
+Hydrogen_Wavefunction custom n=2 l=1 m=0  # Psi_nlm
+Gravitational_Wave custom amp=1.0 freq=0.1  # Gravitational wave
+Electromagnetic_Field custom E=1.0 B=1.0  # EM field
+Klein_Gordon custom mass=1.0  # Relativistic wave equation
+Dirac_Field custom spin=0.5  # Dirac equation (simplified)
+Navier_Stokes custom viscosity=0.01  # Fluid dynamics (simplified)
+Blackbody_Radiation custom T=5000  # Planck's law
+String_Theory custom dim=10 alpha=1.0  # String theory-inspired field
+Cosmological_Expansion custom H0=70  # Hubble expansion
