@@ -6,7 +6,8 @@ I think there are some small issues yet with parsing some equations and there is
 If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.
 <BR /><BR />
 Current license is feel free to use and modify, even commercial business. If you redistribute it, it needs to have the same license and is not for sale.<BR />
-If I misinterpret the license in that regard, then this is in addition to the current license.<BR />
+If I misinterpret the license in that regard, then this is in addition to the current license.<BR /><BR />
+I have mental health issues, so if you think this is useful to you, go ahead and create fork. I sometimes delete things.<BR /><BR />
 
 # Simulator Manual
 <BR /><BR />
