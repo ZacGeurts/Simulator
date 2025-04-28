@@ -1,61 +1,65 @@
-#Simulator Manual<BR /><BR />
-#Overview<BR />
-The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. Developed using C++, SDL2, OpenGL, and SDL_ttf, the Simulator provides a robust platform for simulating particle-based and grid-based physical phenomena governed by user-defined equations. It supports real-time rendering in multiple visualization modes, including point clouds, isosurfaces, wireframes, particle trajectories, hybrid displays, and 2D surfaces, making it ideal for studying dynamical systems, field theories, and tensor-based physics.<BR /><BR />
+# Simulator Manual
+<BR /><BR />
+# Overview
+<BR />
+The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. Developed using C++, SDL2, OpenGL, and SDL_ttf, the Simulator provides a robust platform for simulating particle-based and grid-based physical phenomena governed by user-defined equations. It supports real-time rendering in multiple visualization modes, including point clouds, isosurfaces, wireframes, particle trajectories, hybrid displays, and 2D surfaces, making it ideal for studying dynamical systems, field theories, and tensor-based physics.
+<BR /><BR />
 The Simulator employs a modular architecture, enabling users to define custom equations through a mathematical expression parser or implement tensor-based equations for advanced field computations. It leverages OpenMP for parallel processing of large grids and particle systems. The visualization is highly interactive, with controls for camera manipulation, simulation parameters, and equation switching, all accessible via intuitive key bindings.<BR /><BR />
-This manual provides a comprehensive guide to the Simulator’s functionality, visualization modes, equation system, key bindings, and practical applications, tailored for users with a strong background in physics and mathematics.<BR /><BR />
-System Requirements
-Operating System: Windows, Linux, or macOS
+This manual provides a comprehensive guide to the Simulator’s functionality, visualization modes, equation system, key bindings, and practical applications, tailored for users with a strong background in physics and mathematics.
+<BR /><BR />
+System Requirements <BR />
+Operating System: Windows, Linux, or MacOS. Only Linux tested<BR /><BR />
 
-Dependencies:
-SDL2 for windowing and input
+# Dependencies: <BR />
+SDL2 for windowing and input<BR /><BR />
 
-SDL2_ttf for font rendering
+SDL2_ttf for font rendering<BR />
 
-GLEW for OpenGL functionality
+GLEW for OpenGL functionality<BR />
 
-OpenMP for parallel computation
+OpenMP for parallel computation<BR />
 
-C++17-compliant compiler (e.g., GCC, MSVC, Clang)
+C++17-compliant compiler (e.g., GCC, MSVC, Clang)<BR /><BR />
 
-Hardware:
-OpenGL 2.1-compatible GPU
+Hardware:<BR />
+OpenGL 2.1-compatible GPU<BR />
 
-Multi-core CPU (recommended for parallel computation)
+Multi-core CPU (recommended for parallel computation)<BR />
 
-4 GB RAM or more
+4 GB RAM or more<BR /><BR />
 
-Files:
-DejaVuSans.ttf font file (must be placed in the project directory or a system font path)
+Files:<BR />
+DejaVuSans.ttf font file (must be placed in the project directory or a system font path)<BR />
 
-equations.txt configuration file for custom equations
+equations.txt configuration file for custom equations<BR />
 
-Installation
-Install Dependencies:
-Linux: sudo apt-get install libsdl2-dev libsdl2-ttf-dev libglew-dev
+# Installation <BR />
+Install Dependencies:<BR />
+Linux: sudo apt-get install libsdl2-dev libsdl2-ttf-dev libglew-dev<BR />
 
-Windows: Use vcpkg or download SDL2, SDL2_ttf, and GLEW libraries
+Windows: Use vcpkg or download SDL2, SDL2_ttf, and GLEW libraries<BR />
 
-macOS: Use Homebrew (brew install sdl2 sdl2_ttf glew)
+macOS: Use Homebrew (brew install sdl2 sdl2_ttf glew)<BR />
 
-Clone the Repository:
-git clone <repository-url>
-cd simulator
+# Clone the Repository:
+`git clone https://github.com/ZacGeurts/Simulator
+cd Simulator`
 
-Build the Project:
-Use CMake:
-mkdir build
+Build the Project:<BR />
+Use CMake:<BR />
+`mkdir build
 cd build
 cmake ..
-make
+make`
+<BR />
+Place DejaVuSans.ttf in the project root or build directory (../DejaVuSans.ttf relative to the executable).<BR />
 
-Place DejaVuSans.ttf in the project root or build directory (../DejaVuSans.ttf relative to the executable).
+Ensure equations.txt is in the project directory.<BR />
 
-Ensure equations.txt is in the project directory.
+# Run the Program:
+`./simulator`
 
-Run the Program:
-./simulator
-
-Program Functionality
+# Program Functionality
 The Simulator models physical systems by integrating user-defined equations over a 3D grid or a set of particles. The simulation state is managed by a Simulation object, which includes:
 Grid Data:
 ricci: 3D array of Tensor objects for Ricci curvature or similar tensor fields.
