@@ -23,7 +23,7 @@ OpenGL for display<BR />
 GLEW for OpenGL functionality<BR />
 OpenMP for parallel computation<BR />
 C++17-compliant compiler (e.g., GCC, MSVC, Clang)<BR />
-git<BR />
+git (or click the green code button at the top and download as ZIP)<BR />
 cmake<BR /><BR />
 
 Hardware:<BR />
