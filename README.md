@@ -1,3 +1,9 @@
+This is my current WIP. I have a couple updates planned like solving some computational issues and fixing mode 2.<BR />
+It is mostly done.<BR />
+I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
+I think there are some small issues yet with parsing some equations and there is the rendering on mode 2 that I think I broke my tables.<BR /><BR />
+If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.<BR /><BR />
+
 # Simulator Manual
 <BR /><BR />
 # Overview
@@ -11,34 +17,28 @@ System Requirements <BR />
 Operating System: Windows, Linux, or MacOS. Only Linux tested<BR /><BR />
 
 # Dependencies: <BR />
-SDL2 for windowing and input<BR /><BR />
-
+SDL2 for windowing and input<BR />
 SDL2_ttf for font rendering<BR />
-
+OpenGL for display<BR />
 GLEW for OpenGL functionality<BR />
-
 OpenMP for parallel computation<BR />
-
-C++17-compliant compiler (e.g., GCC, MSVC, Clang)<BR /><BR />
+C++17-compliant compiler (e.g., GCC, MSVC, Clang)<BR />
+git<BR />
+cmake<BR /><BR />
 
 Hardware:<BR />
 OpenGL 2.1-compatible GPU<BR />
-
 Multi-core CPU (recommended for parallel computation)<BR />
-
 4 GB RAM or more<BR /><BR />
 
 Files:<BR />
 DejaVuSans.ttf font file (must be placed in the project directory or a system font path)<BR />
-
 equations.txt configuration file for custom equations<BR />
 
 # Installation <BR />
 Install Dependencies:<BR />
 Linux: sudo apt-get install libsdl2-dev libsdl2-ttf-dev libglew-dev<BR />
-
 Windows: Use vcpkg or download SDL2, SDL2_ttf, and GLEW libraries<BR />
-
 macOS: Use Homebrew (brew install sdl2 sdl2_ttf glew)<BR />
 
 # Clone the Repository:
