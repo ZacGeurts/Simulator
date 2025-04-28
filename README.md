@@ -3,7 +3,10 @@ It is mostly done. If you have issues it is probably in log.txt so it may help y
 I am a computer nerd and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
 I think there are some small issues yet with parsing some equations and there is the rendering on mode 2 that I think I broke my tables.<BR /><BR />
-If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.<BR /><BR />
+If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.
+<BR /><BR />
+Current license is feel free to use and modify, even commercial business. If you redistribute it, it needs to have the same license and is not for sale.<BR />
+If I misinterpret the license in that regard, then this is in addition to the current license.<BR />
 
 # Simulator Manual
 <BR /><BR />
