@@ -3,6 +3,11 @@ project(PhysicsVisualization)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+# set(CMAKE_BUILD_TYPE Debug)
+# for symbols with gdb --args simulation
+# bt full
+# info registers
+# I do not recommend enabling the symbols.
 
 # Set OpenGL preference to GLVND
 set(OpenGL_GL_PREFERENCE GLVND)
@@ -11,6 +16,12 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(SDL2 REQUIRED)
 if (NOT SDL2_FOUND)
     message(FATAL_ERROR "SDL2 not found. Please install SDL2 development libraries (e.g., 'sudo apt install libsdl2-dev' on Ubuntu).")
+endif()
+
+# Find GLEW
+find_package(GLEW REQUIRED)
+if (NOT GLEW_FOUND)
+    message(FATAL_ERROR "GLEW not found. Please install GLEW development libraries (e.g., 'sudo apt install libglew-dev' on Ubuntu).")
 endif()
 
 # Find SDL2_ttf
@@ -39,6 +50,13 @@ if (NOT GLU_LIBRARY)
     message(FATAL_ERROR "GLU library not found. Please install GLU (e.g., 'sudo apt install libglu1-mesa-dev' on Ubuntu).")
 endif()
 
+# Find OpenMP for parallelization
+find_package(OpenMP)
+if (OPENMP_FOUND)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
 # Print found libraries for debugging
 message(STATUS "SDL2 Libraries: ${SDL2_LIBRARIES}")
 message(STATUS "SDL2 Include Dirs: ${SDL2_INCLUDE_DIRS}")
@@ -46,6 +64,7 @@ message(STATUS "SDL2_ttf Library: ${SDL2_TTF_LIBRARY}")
 message(STATUS "SDL2_ttf Include Dir: ${SDL2_TTF_INCLUDE_DIR}")
 message(STATUS "OpenGL Libraries: ${OPENGL_LIBRARIES}")
 message(STATUS "GLU Library: ${GLU_LIBRARY}")
+message(STATUS "GLEW Library: ${GLEW_LIBRARIES}")
 
 # Source files
 set(SOURCES
@@ -68,10 +87,23 @@ target_include_directories(simulation PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 
+# Link libraries
+target_link_libraries(simulation PRIVATE
+    ${SDL2_LIBRARIES}
+    ${SDL2_TTF_LIBRARY}
+    ${OPENGL_LIBRARIES}
+    ${GLU_LIBRARY}
+	${GLEW_LIBRARIES}
+)
+
+if (OPENMP_FOUND)
+    target_link_libraries(simulation PRIVATE OpenMP::OpenMP_CXX)
+endif()
+
 # Platform-specific settings
 if (ANDROID)
     # Use OpenGL ES for Android
-    target_link_libraries(simulation PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} GLESv2)
+    target_link_libraries(simulation PRIVATE GLESv2)
 elseif (UNIX AND NOT APPLE)
     # Linux: Use GLU for desktop OpenGL
     target_link_libraries(simulation PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARY} ${OPENGL_LIBRARIES} ${GLU_LIBRARY})
