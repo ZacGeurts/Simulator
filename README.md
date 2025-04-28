@@ -42,20 +42,20 @@ equations.txt configuration file for custom equations<BR />
 
 # Installation <BR />
 Install Dependencies:<BR />
-Linux: sudo apt-get install libsdl2-dev libsdl2-ttf-dev libglew-dev<BR />
+Linux: `sudo apt-get install libsdl2-dev libsdl2-ttf-dev libglew-dev build-essential mesa-utils libglu1-mesa-dev freeglut3-dev mesa-common-dev`<BR />
 Windows: Use vcpkg or download SDL2, SDL2_ttf, and GLEW libraries<BR />
 macOS: Use Homebrew (brew install sdl2 sdl2_ttf glew)<BR />
 
 # Clone the Repository:
-`git clone https://github.com/ZacGeurts/Simulator
-cd Simulator`
+`git clone https://github.com/ZacGeurts/Simulator`
+`cd Simulator`
 
 Build the Project:<BR />
 Use CMake:<BR />
-`mkdir build
-cd build
-cmake ..
-make`
+`mkdir build`
+`cd build`
+`cmake ..`
+`make`
 <BR />
 Place DejaVuSans.ttf in the project root or build directory (../DejaVuSans.ttf relative to the executable).<BR />
 
@@ -327,9 +327,9 @@ Left Arrow: Previous equation.
 Right Arrow: Next equation.
 
 Camera Control:
-Up Arrow: Zoom in (decrease camera_zoom, min 0.5).
+Up Arrow: Zoom out (decrease camera_zoom, min 0.5).
 
-Down Arrow: Zoom out (increase camera_zoom, max 20.0).
+Down Arrow: Zoom in (increase camera_zoom, max 20.0).
 
 Simulation Parameters:
 X: Increase grid size (size, max 50) and reinitialize.
