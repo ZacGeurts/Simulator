@@ -47,15 +47,15 @@ Windows: Use vcpkg or download SDL2, SDL2_ttf, and GLEW libraries<BR />
 macOS: Use Homebrew (brew install sdl2 sdl2_ttf glew)<BR />
 
 # Clone the Repository:
-`git clone https://github.com/ZacGeurts/Simulator`
-`cd Simulator`
-
+`git clone https://github.com/ZacGeurts/Simulator`<BR />
+`cd Simulator`<BR />
+<BR />
 Build the Project:<BR />
 Use CMake:<BR />
-`mkdir build`
-`cd build`
-`cmake ..`
-`make`
+`mkdir build`<BR />
+`cd build`<BR />
+`cmake ..`<BR />
+`make`<BR />
 <BR />
 Place DejaVuSans.ttf in the project root or build directory (../DejaVuSans.ttf relative to the executable).<BR />
 
