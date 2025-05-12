@@ -17,28 +17,30 @@ I have mental health issues, so if you think this is useful to you, go ahead and
 <BR /><BR />
 # Overview
 <BR />
-The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. Developed using C++, SDL2, OpenGL, and SDL_ttf, the Simulator provides a robust platform for simulating particle-based and grid-based physical phenomena governed by user-defined equations. It supports real-time rendering in multiple visualization modes, including point clouds, isosurfaces, wireframes, particle trajectories, hybrid displays, and 2D surfaces, making it ideal for studying dynamical systems, field theories, and tensor-based physics.
+The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. (5D) always exists but assume it is smaller than observation influence (Unless viewed from (4D), which is out of this scope. Always enough to move the scale.<BR />
+Developed using C++, SDL2, OpenGL, and SDL_ttf GLEW and cmake/make<BR />
+The Simulator provides a robust platform for simulating particle-based and grid-based physical phenomena governed by user-defined equations. It supports real-time rendering in multiple visualization modes, including point clouds, isosurfaces, wireframes, particle trajectories, hybrid displays, and 2D surfaces, making it ideal for studying dynamical systems, field theories, and tensor-based physics.
 <BR /><BR />
 The Simulator employs a modular architecture, enabling users to define custom equations through a mathematical expression parser or implement tensor-based equations for advanced field computations. It leverages OpenMP for parallel processing of large grids and particle systems. The visualization is highly interactive, with controls for camera manipulation, simulation parameters, and equation switching, all accessible via intuitive key bindings.<BR /><BR />
 This manual provides a comprehensive guide to the Simulator’s functionality, visualization modes, equation system, key bindings, and practical applications, tailored for users with a strong background in physics and mathematics.
-<BR /><BR />
+<BR />Output folder will log the calculations.<BR />
 System Requirements <BR />
-Operating System: Windows, Linux, or MacOS. Only Linux tested<BR /><BR />
+Operating System: Windows, Linux, or MacOS. Only Linux tested so far<BR />I will spin up a Windows VM soon(tm)<BR />
 
 # Dependencies: <BR />
 SDL2 for windowing and input<BR />
-SDL2_ttf for font rendering<BR />
+SDL2_ttf for font rendering (DejaVuSans.ttf included)<BR />
 OpenGL for display<BR />
 GLEW for OpenGL functionality<BR />
 OpenMP for parallel computation<BR />
 C++17-compliant compiler (e.g., GCC, MSVC, Clang)<BR />
 git (or click the green code button at the top and download as ZIP)<BR />
-cmake<BR /><BR />
+cmake/make (search build-essential)<BR /><BR />
 
 Hardware:<BR />
 OpenGL 2.1-compatible GPU<BR />
 Multi-core CPU (recommended for parallel computation)<BR />
-4 GB RAM or more<BR /><BR />
+4 GB RAM or more (or less)<BR /><BR />
 
 Files:<BR />
 DejaVuSans.ttf font file (must be placed in the project directory or a system font path)<BR />
