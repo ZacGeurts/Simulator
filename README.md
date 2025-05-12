@@ -1,8 +1,8 @@
-Check shots folder for images. This is my current WIP. I have a couple updates planned like solving some computational issues and fixing mode 2.<BR />
-It is mostly done. If you have issues it is probably in log.txt so it may help you along the way.<BR />
+Check shots folder for images.<BR />
+If you have issues it is probably in log.txt so it may help you along the way.<BR />
 I am a computer nerd and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
-I think there are some small issues yet with parsing some equations and there is the rendering on mode 2 that I think I broke my tables.<BR /><BR />
+I think there are some small issues yet with parsing some equations as I want better parsing for more structures.<BR /><BR />
 If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.
 <BR /><BR />
 Current license is feel free to use and modify, even commercial business. If you redistribute it, it needs to have the same license and is not for sale.<BR />
@@ -158,6 +158,17 @@ Use Case: Studies 2D field slices (e.g., wave propagation, temperature distribut
 
 Mathematical Context: Displays z=ϕ(x,y,z0,t)z = \phi(x, y, z_0, t)z = \phi(x, y, z_0, t)
  with 4D color mapping.
+
+Sphere Points Mode (SDL_SCANCODE_7)
+
+Description: Renders a semi-transparent sphere composed of large, colorful points representing the scalar field values within a spherical region. Points are larger and denser than in Points mode, with semi-transparency to enhance visibility of overlapping regions and reduce gaps.
+Use Case: Ideal for visualizing scalar field distributions in a compact, spherical domain, emphasizing field intensity and structure without the cubic boundaries of Points mode. Suitable for applications like gravitational or electromagnetic field analysis.
+
+Mathematical Context: Visualizes the scalar field ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)
+ within a spherical region defined by x2+y2+z2≤r2x^2 + y^2 + z^2 \leq r^2x^2 + y^2 + z^2 \leq r^2
+, where (r) is the radius derived from the grid size. Colors are mapped to normalized field values, with red indicating higher values, green lower values, and blue as a constant base, scaled by visualization intensity.
+
+
 
 Equation System
 The Simulator supports two equation types, defined in equations.h and implemented in equations.cpp:
