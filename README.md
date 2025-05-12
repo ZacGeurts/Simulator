@@ -312,7 +312,7 @@ Phonon_Mode: Crystal vibrations (sin(k*x)*cos(k*y)*sin(w*t)), periodic lattice p
 
 Neutrino_Osc: Flavor mixing (sin(dm^2*r/(4*E))*cos(w*t)), interference-like surfaces.
 
-Key Bindings
+# Key Bindings
 The Simulator is fully interactive, with the following key bindings:
 Simulation Control:
 Escape: Exit the program.
@@ -326,7 +326,8 @@ Enter (Return) key to advance simulation when paused
 C and V to rotate when paused
 G and B to pan and tilt when paused
 
-Visualization Modes:
+#Visualization Modes:
+
 1: Points mode.
 
 2: Isosurface mode.
@@ -339,6 +340,8 @@ Visualization Modes:
 
 6: Surface mode.
 
+7: Sphere mode.
+
 0: Center camera (reset camera_angle to 0, camera_zoom to 0.3).
 
 Equation Navigation:
@@ -347,9 +350,9 @@ Left Arrow: Previous equation.
 Right Arrow: Next equation.
 
 Camera Control:
-Up Arrow: Zoom out (decrease camera_zoom, min 0.5).
+Up Arrow: Zoom in (increase camera_zoom, max 20.0).
 
-Down Arrow: Zoom in (increase camera_zoom, max 20.0).
+Down Arrow: Zoom out (decrease camera_zoom, min 0.5).
 
 Simulation Parameters:
 X: Increase grid size (size, max 50) and reinitialize.
