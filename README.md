@@ -316,7 +316,8 @@ Phonon_Mode: Crystal vibrations (sin(k*x)*cos(k*y)*sin(w*t)), periodic lattice p
 Neutrino_Osc: Flavor mixing (sin(dm^2*r/(4*E))*cos(w*t)), interference-like surfaces.
 
 # Key Bindings
-The Simulator is fully interactive, with the following key bindings:
+I recommend the menu and reading the tooltips.<BR />
+The Simulator is fully interactive, with the following key bindings:<BR />
 Simulation Control:
 Escape: Exit the program.
 
