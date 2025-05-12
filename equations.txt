@@ -1,15 +1,22 @@
 # Physics equations for visualization
 # Custom equations designed to showcase diverse, visually stunning displays
-# Each equation uses the CustomEquation class with unique expressions and parameters
+# Equations use CustomEquation or TensorEquation classes with unique expressions and parameters
+# Tensor equations are classified as 'tensor' for proper handling by TensorEquation
+# Derived parameters (e.g., r, theta, phi) are defined explicitly and evaluated during computation
 
-# my tests - Creation
-Ricci_Divergence custom eq=H1D+I0*cos(D_t*t)*sin(D0*r)+eps_5D*sin(FiveD0*t) H1D=1.5 D_t=0.15 eps_5D=0.015 I0=0.1 D0=0.2 FiveD0=0.1 alpha=1.0 vis_scale=1.3 vis_color_intensity=1.4 r=sqrt(x*x+y*y+z*z)
-Ricci_Tensor custom eq=H1D+I0*sin(D_t*t)*cos(D0*r)+eps_5D*cos(FiveD0*t) H1D=2.0 D_t=0.2 eps_5D=0.02 I0=0.2 D0=0.3 FiveD0=0.15 alpha=1.2 vis_scale=1.5 vis_color_intensity=1.5 r=sqrt(x*x+y*y+z*z)
-Enhanced_Laser_Ricci_Divergence custom eq=H1D+I0*(cos(D0*x-D_t*t)+cos(D0*z-D_t*t))*cos(phi)+eps_5D*sin(FiveD0*t) H1D=1.2 D_t=0.3 eps_5D=0.03 I0=0.3 D0=0.5 FiveD0=0.1 alpha=1.0 vis_scale=1.8 vis_color_intensity=1.8 phi=atan2(y,x)
-Enhanced_Laser_Ricci_Tensor custom eq=H1D+I0*(sin(D0*x-D_t*t)+sin(D0*z-D_t*t))*cos(theta)+eps_5D*cos(FiveD0*t) H1D=1.5 D_t=0.4 eps_5D=0.04 I0=0.4 D0=0.6 FiveD0=0.15 alpha=1.2 vis_scale=1.8 vis_color_intensity=1.8 theta=acos(z/r) r=sqrt(x*x+y*y+z*z)
+# Tensor Equations (Ricci curvature and laser-enhanced variants, scalar approximations)
+Ricci_Divergence tensor eq=H1D+I0*cos(D_t*t)*sin(D0*r)+eps_5D*sin(FiveD0*t) H1D=1.5 D_t=0.15 eps_5D=0.015 I0=0.1 D0=0.2 FiveD0=0.1 alpha=1.0 vis_scale=1.3 vis_color_intensity=1.4 r=sqrt(x*x+y*y+z*z)
+# Visual: Oscillatory, radial patterns with time-varying amplitude, suitable for ISOSURFACE
+Ricci_Tensor tensor eq=H1D+I0*sin(D_t*t)*cos(D0*r)+eps_5D*cos(FiveD0*t) H1D=2.0 D_t=0.2 eps_5D=0.02 I0=0.2 D0=0.3 FiveD0=0.15 alpha=1.2 vis_scale=1.5 vis_color_intensity=1.5 r=sqrt(x*x+y*y+z*z)
+# Visual: Smooth, radial oscillations with dynamic isosurfaces
+Enhanced_Laser_Ricci_Divergence tensor eq=H1D+I0*(cos(D0*x-D_t*t)+cos(D0*z-D_t*t))*cos(phi)+eps_5D*sin(FiveD0*t) H1D=1.2 D_t=0.3 eps_5D=0.03 I0=0.3 D0=0.5 FiveD0=0.1 alpha=1.0 vis_scale=1.8 vis_color_intensity=1.8 phi=atan2(y,x)
+# Visual: Laser-like interference patterns, vibrant in ISOSURFACE and WIREFRAME
+Enhanced_Laser_Ricci_Tensor tensor eq=H1D+I0*(sin(D0*x-D_t*t)+sin(D0*z-D_t*t))*cos(theta)+eps_5D*cos(FiveD0*t) H1D=1.5 D_t=0.4 eps_5D=0.04 I0=0.4 D0=0.6 FiveD0=0.15 alpha=1.2 vis_scale=1.8 vis_color_intensity=1.8 theta=acos(z/r) r=sqrt(x*x+y*y+z*z)
+# Visual: Helical, oscillatory isosurfaces with angular dependence
 
+# Custom Equations (Gravitational, electromagnetic, quantum, and other physical phenomena)
 # 1. Gravitational Potential (Inverse-square field, smooth isosurfaces)
-Gravitational_Potential custom eq=-G*mass1/(r+0.01) G=6.67430e-11 mass1=5.972e24 vis_scale=1.5 vis_color_intensity=1.2
+Gravitational_Potential custom eq=-G*mass1/(r+0.01) G=6.67430e-11 mass1=5.972e24 vis_scale=1.5 vis_color_intensity=1.2 r=sqrt(x*x+y*y+z*z)
 # Visual: Smooth, radially symmetric isosurfaces centered at origin, like a planet's gravity field
 
 # 2. Electromagnetic Wave (Oscillating E-field, wave-like isosurfaces)
@@ -17,19 +24,19 @@ EM_Wave custom eq=E*sin(k*x-w*t) E=1.0 k=2.0 w=1.0 vis_scale=1.0 vis_color_inten
 # Visual: Propagating wave patterns, vivid oscillations in ISOSURFACE and POINTS modes
 
 # 3. Quantum Wavefunction (Hydrogen-like, nodal surfaces)
-Hydrogen_Wavefunction custom eq=exp(-r/a0)*cos(theta) a0=5.29e-11 theta=acos(z/r) vis_scale=2.0 vis_color_intensity=1.3
-# Visual: Complex nodal surfaces with lobes, ideal for ISOSURFACE, showing quantum probability densities
+Hydrogen_Wavefunction custom eq=exp(-r/a0)*cos(theta) a0=5.29e-11 vis_scale=2.0 vis_color_intensity=1.3 r=sqrt(x*x+y*y+z*z) theta=acos(z/r)
+# Visual: Complex nodal surfaces with lobes, ideal for ISOSURFACE, showing quantum probability density
 
 # 4. Schwarzschild Metric (Black hole-inspired, steep gradients)
-Schwarzschild custom eq=1-2*G*M/(r*c*c) G=6.67430e-11 M=1.989e30 c=299792458 r=max(r,1e-6) vis_scale=1.8 vis_color_intensity=1.4
+Schwarzschild custom eq=1-2*G*M/(r*c*c) G=6.67430e-11 M=1.989e30 c=299792458.0 vis_scale=1.8 vis_color_intensity=1.4 r=max(sqrt(x*x+y*y+z*z),1e-6)
 # Visual: Sharp, curved isosurfaces near origin, mimicking black hole spacetime curvature
 
 # 5. Gravitational Wave (Quadrupolar oscillation, dynamic ripples)
-Gravitational_Wave custom eq=amp*sin(k*r-w*t)*cos(theta)^2 amp=0.5 k=1.5 w=2.0 theta=acos(z/r) vis_scale=1.2 vis_color_intensity=1.6
+Gravitational_Wave custom eq=amp*sin(k*r-w*t)*cos(theta)*cos(theta) amp=0.5 k=1.5 w=2.0 vis_scale=1.2 vis_color_intensity=1.6 r=sqrt(x*x+y*y+z*z) theta=acos(z/r)
 # Visual: Rippling, quadrupolar patterns, dynamic in ISOSURFACE, like merging black holes
 
 # 6. Klein-Gordon Field (Relativistic scalar field, spherical waves)
-Klein_Gordon custom eq=sin(k*r-w*t)/(r+0.01) k=1.0 w=1.5 vis_scale=1.3 vis_color_intensity=1.2
+Klein_Gordon custom eq=sin(k*r-w*t)/(r+0.01) k=1.0 w=1.5 vis_scale=1.3 vis_color_intensity=1.2 r=sqrt(x*x+y*y+z*z)
 # Visual: Spherical wave fronts emanating from origin, smooth isosurfaces
 
 # 7. Navier-Stokes Vorticity (Fluid dynamics, swirling patterns)
@@ -37,23 +44,23 @@ Fluid_Vorticity custom eq=viscosity*(sin(x)*cos(y)-cos(z)*sin(t)) viscosity=0.1 
 # Visual: Swirling, turbulent patterns, great for WIREFRAME and ISOSURFACE
 
 # 8. Blackbody Radiation (Thermal field, temperature-dependent glow)
-Blackbody custom eq=2*h*c*c/(lambda^5*(exp(h*c/(lambda*k*T))-1)) h=6.62607015e-34 c=299792458 lambda=5e-7 k=1.380649e-23 T=5000 vis_scale=1.0 vis_color_intensity=1.8
+Blackbody custom eq=2*h*c*c/(lambda^5*(exp(h*c/(lambda*k*T))-1)) h=6.62607015e-34 c=299792458.0 lambda=5e-7 k=1.380649e-23 T=5000.0 vis_scale=1.0 vis_color_intensity=1.8
 # Visual: Warm, glowing isosurfaces, spatially uniform with time-varying intensity
 
 # 9. Spherical Harmonic (Angular patterns, quantum-like lobes)
-Spherical_Harmonic custom eq=cos(l*theta)*cos(m*phi) l=3 m=2 theta=acos(z/r) phi=atan2(y,x) vis_scale=1.4 vis_color_intensity=1.3
+Spherical_Harmonic custom eq=cos(l*theta)*cos(m*phi) l=3.0 m=2.0 vis_scale=1.4 vis_color_intensity=1.3 r=sqrt(x*x+y*y+z*z) theta=acos(z/r) phi=atan2(y,x)
 # Visual: Lobed, angular patterns, perfect for ISOSURFACE, resembling atomic orbitals
 
 # 10. Cosmological Expansion (Hubble-like, uniform expansion)
-Cosmo_Expansion custom eq=H0*r/(1+0.1*t) H0=2.268e-18 vis_scale=1.2 vis_color_intensity=1.2
+Cosmo_Expansion custom eq=H0*r/(1+0.1*t) H0=2.268e-18 vis_scale=1.2 vis_color_intensity=1.2 r=sqrt(x*x+y*y+z*z)
 # Visual: Expanding scalar field, uniform growth, subtle isosurface stretching
 
 # 11. Dirac Field (Spinor-inspired, complex oscillations)
-Dirac_Spinor custom eq=sin(k*r)*cos(w*t+spin*phi) k=1.5 w=1.0 spin=0.5 phi=atan2(y,x) vis_scale=1.3 vis_color_intensity=1.5
+Dirac_Spinor custom eq=sin(k*r)*cos(w*t+spin*phi) k=1.5 w=1.0 spin=0.5 vis_scale=1.3 vis_color_intensity=1.5 r=sqrt(x*x+y*y+z*z) phi=atan2(y,x)
 # Visual: Twisted, oscillatory isosurfaces, reflecting spinor-like behavior
 
 # 12. String Theory Vibration (High-dimensional oscillation)
-String_Mode custom eq=sin(dim*x)*cos(alpha*t) dim=10 alpha=1.0 vis_scale=1.0 vis_color_intensity=1.6
+String_Mode custom eq=sin(dim*x)*cos(alpha*t) dim=10.0 alpha=1.0 vis_scale=1.0 vis_color_intensity=1.6
 # Visual: Rapidly oscillating, high-frequency patterns, unique in POINTS and ISOSURFACE
 
 # 13. Wave Equation (Acoustic wave, planar propagation)
@@ -61,15 +68,15 @@ Acoustic_Wave custom eq=wave_speed*sin(k*x-w*t) wave_speed=343.0 k=1.0 w=2.0 vis
 # Visual: Planar wave fronts, clear propagation in ISOSURFACE and SURFACE
 
 # 14. E=mc^2 Energy Density (Relativistic energy, radial decay)
-Relativistic_Energy custom eq=mass*c*c/(r+0.01) mass=1.0 c=299792458 vis_scale=1.5 vis_color_intensity=1.3
+Relativistic_Energy custom eq=mass*c*c/(r+0.01) mass=1.0 c=299792458.0 vis_scale=1.5 vis_color_intensity=1.3 r=sqrt(x*x+y*y+z*z)
 # Visual: Dense, radial isosurfaces, like a massive particle’s energy field
 
 # 15. Kepler Orbit Potential (Elliptical gravitational field)
-Kepler_Potential custom eq=-G*M/(r+0.01)*cos(theta) G=6.67430e-11 M=1.989e30 theta=acos(z/r) vis_scale=1.4 vis_color_intensity=1.2
+Kepler_Potential custom eq=-G*M/(r+0.01)*cos(theta) G=6.67430e-11 M=1.989e30 vis_scale=1.4 vis_color_intensity=1.2 r=sqrt(x*x+y*y+z*z) theta=acos(z/r)
 # Visual: Asymmetric, elliptical isosurfaces, mimicking orbital dynamics
 
 # 16. Magnetohydrodynamic Wave (Alfvén wave, helical patterns)
-MHD_Wave custom eq=B*sin(k*z-w*t)*cos(phi) B=1.0 k=1.5 w=1.0 phi=atan2(y,x) vis_scale=1.3 vis_color_intensity=1.5
+MHD_Wave custom eq=B*sin(k*z-w*t)*cos(phi) B=1.0 k=1.5 w=1.0 vis_scale=1.3 vis_color_intensity=1.5 phi=atan2(y,x)
 # Visual: Helical, propagating waves, striking in ISOSURFACE and WIREFRAME
 
 # 17. Quantum Tunneling (Barrier-like scalar field)
@@ -77,35 +84,35 @@ Quantum_Tunnel custom eq=exp(-abs(x)/a0)*cos(k*z) a0=1e-10 k=2.0 vis_scale=1.2 v
 # Visual: Decaying, oscillatory isosurfaces, like a particle tunneling through a barrier
 
 # 18. Vortex Ring (Fluid dynamics, toroidal structures)
-Vortex_Ring custom eq=viscosity*sin(rho)*exp(-z^2) viscosity=0.05 rho=sqrt(x^2+y^2) vis_scale=1.5 vis_color_intensity=1.3
+Vortex_Ring custom eq=viscosity*sin(rho)*exp(-z*z) viscosity=0.05 rho=sqrt(x*x+y*y) vis_scale=1.5 vis_color_intensity=1.3
 # Visual: Toroidal isosurfaces, resembling smoke rings or fluid vortices
 
 # 19. Gravitational Lensing (Deflection field, warped surfaces)
-Grav_Lensing custom eq=4*G*M/(r^2*c^2) G=6.67430e-11 M=1.989e30 c=299792458 r=max(r,1e-6) vis_scale=1.6 vis_color_intensity=1.4
+Grav_Lensing custom eq=4*G*M/(r*r*c*c) G=6.67430e-11 M=1.989e30 c=299792458.0 vis_scale=1.6 vis_color_intensity=1.4 r=max(sqrt(x*x+y*y+z*z),1e-6)
 # Visual: Warped, lens-like isosurfaces, mimicking light bending around a massive object
 
 # 20. Higgs Field (Scalar potential, Mexican hat shape)
-Higgs_Potential custom eq=lambda*(v^2-r^2)^2 lambda=0.1 v=246 vis_scale=1.3 vis_color_intensity=1.5
+Higgs_Potential custom eq=lambda*(v*v-r*r)*(v*v-r*r) lambda=0.1 v=246.0 vis_scale=1.3 vis_color_intensity=1.5 r=sqrt(x*x+y*y+z*z)
 # Visual: Symmetric, double-well isosurfaces, like the Higgs boson potential
 
 # 21. Plasma Oscillation (Langmuir wave, electron density waves)
-Plasma_Wave custom eq=ne*sin(k*x-w*t) ne=1e6 k=1.5 w=2.0 vis_scale=1.2 vis_color_intensity=1.4
+Plasma_Wave custom eq=ne*sin(k*x-w*t) ne=1000000.0 k=1.5 w=2.0 vis_scale=1.2 vis_color_intensity=1.4
 # Visual: Oscillatory, plasma-like isosurfaces, vibrant in POINTS and ISOSURFACE
 
 # 22. Superfluid Vortices (Quantized vortex lattice)
-Superfluid_Vortex custom eq=kappa*sin(k*rho)*cos(m*phi) kappa=1e-7 k=2.0 m=3 rho=sqrt(x^2+y^2) phi=atan2(y,x) vis_scale=1.5 vis_color_intensity=1.3
+Superfluid_Vortex custom eq=kappa*sin(k*rho)*cos(m*phi) kappa=1e-7 k=2.0 m=3.0 vis_scale=1.5 vis_color_intensity=1.3 rho=sqrt(x*x+y*y) phi=atan2(y,x)
 # Visual: Lattice-like vortex patterns, striking in ISOSURFACE and WIREFRAME
 
 # 23. Relativistic Shockwave (Blast wave, sharp fronts)
-Shockwave custom eq=exp(-r/vs*t)*sin(k*r) vs=1e5 k=1.5 vis_scale=1.4 vis_color_intensity=1.6
+Shockwave custom eq=exp(-r/(vs*t+1e-6))*sin(k*r) vs=100000.0 k=1.5 vis_scale=1.4 vis_color_intensity=1.6 r=sqrt(x*x+y*y+z*z)
 # Visual: Sharp, expanding isosurfaces, like a supernova shockwave
 
 # 24. Chladni Patterns (Vibrating plate, nodal lines)
-Chladni_Pattern custom eq=cos(n*x)*cos(m*y)*sin(w*t) n=4 m=3 w=1.0 vis_scale=1.2 vis_color_intensity=1.5
+Chladni_Pattern custom eq=cos(n*x)*cos(m*y)*sin(w*t) n=4.0 m=3.0 w=1.0 vis_scale=1.2 vis_color_intensity=1.5
 # Visual: Nodal, grid-like isosurfaces, resembling vibrating plate patterns
 
 # 25. Yukawa Potential (Screened Coulomb field, short-range)
-Yukawa_Potential custom eq=g*exp(-kappa*r)/(r+0.01) g=1.0 kappa=1.0 vis_scale=1.3 vis_color_intensity=1.2
+Yukawa_Potential custom eq=g*exp(-kappa*r)/(r+0.01) g=1.0 kappa=1.0 vis_scale=1.3 vis_color_intensity=1.2 r=sqrt(x*x+y*y+z*z)
 # Visual: Short-range, radial isosurfaces, like nuclear force fields
 
 # 26. Turbulent Flow (Chaotic fluid motion, noisy patterns)
@@ -113,11 +120,11 @@ Turbulence custom eq=viscosity*(sin(x+t)+cos(y-t)+sin(z+t)) viscosity=0.02 vis_s
 # Visual: Chaotic, noisy isosurfaces, ideal for WIREFRAME and ISOSURFACE
 
 # 27. Quantum Harmonic Oscillator (Parabolic potential, layered surfaces)
-Quantum_Oscillator custom eq=n*exp(-r^2/(2*a0^2)) n=2 a0=1e-10 vis_scale=1.4 vis_color_intensity=1.3
+Quantum_Oscillator custom eq=n*exp(-r*r/(2*a0*a0)) n=2.0 a0=1e-10 vis_scale=1.4 vis_color_intensity=1.3 r=sqrt(x*x+y*y+z*z)
 # Visual: Layered, parabolic isosurfaces, like energy levels in a harmonic trap
 
 # 28. Cosmic String (Topological defect, linear structure)
-Cosmic_String custom eq=eta*exp(-rho^2/lambda^2) eta=1e16 lambda=1e-6 rho=sqrt(x^2+y^2) vis_scale=1.6 vis_color_intensity=1.4
+Cosmic_String custom eq=eta*exp(-rho*rho/(lambda*lambda)) eta=1e16 lambda=1e-6 vis_scale=1.6 vis_color_intensity=1.4 rho=sqrt(x*x+y*y)
 # Visual: Thin, string-like isosurfaces along z-axis, resembling cosmological defects
 
 # 29. Phonon Lattice (Crystal vibration modes, periodic patterns)
@@ -125,5 +132,5 @@ Phonon_Mode custom eq=sin(k*x)*cos(k*y)*sin(w*t) k=2.0 w=1.5 vis_scale=1.2 vis_c
 # Visual: Periodic, lattice-like isosurfaces, like vibrations in a solid
 
 # 30. Neutrino Oscillation (Flavor mixing, interference patterns)
-Neutrino_Osc custom eq=sin(dm^2*r/(4*E))*cos(w*t) dm=2.5e-3 E=1e9 w=1.0 vis_scale=1.3 vis_color_intensity=1.6
+Neutrino_Osc custom eq=sin(dm*dm*r/(4*E))*cos(w*t) dm=0.0025 E=1000000000.0 w=1.0 vis_scale=1.3 vis_color_intensity=1.6 r=sqrt(x*x+y*y+z*z)
 # Visual: Interference-like isosurfaces, dynamic and wavy, mimicking neutrino flavor changes
