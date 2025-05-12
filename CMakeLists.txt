@@ -71,6 +71,7 @@ set(SOURCES
     src/main.cpp
     src/equations.cpp
     src/renderer.cpp
+    src/menu.cpp
 )
 
 # Create output directory
