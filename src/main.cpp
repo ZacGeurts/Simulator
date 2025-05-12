@@ -156,6 +156,10 @@ int main() {
                         current_display_mode = SURFACE;
                         needs_render = true;
                         break;
+					case SDL_SCANCODE_7:
+    					current_display_mode = SPHERE_POINTS; // or 7
+						needs_render = true;
+                        break;
                     case SDL_SCANCODE_LEFT:
                         {
                             std::lock_guard<std::mutex> lock(sim_mutex);

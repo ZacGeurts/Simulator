@@ -8,7 +8,7 @@ extern float camera_zoom;
 extern bool rotate_camera;
 extern float camera_tilt;
 
-enum DisplayMode { POINTS, ISOSURFACE, WIREFRAME, PARTICLES, HYBRID, SURFACE };
+enum DisplayMode { POINTS, ISOSURFACE, WIREFRAME, PARTICLES, HYBRID, SURFACE, SPHERE_POINTS };
 
 extern DisplayMode current_display_mode;
 
