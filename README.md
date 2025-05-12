@@ -95,91 +95,87 @@ equations: Vector of Equation objects defining the physics.
 
 The simulation advances in real-time using a timer (16 ms interval, ~60 FPS), updating particle positions, grid fields, and rendering the scene. The rendering pipeline uses OpenGL with GLEW for vertex buffer objects (VBOs) and SDL_ttf for displaying the current equation name.
 Visualization Modes
-The Simulator supports six visualization modes, selectable via key bindings, each tailored to different aspects of the simulation data:
+The Simulator supports six visualization modes, selectable via key bindings, each tailored to different aspects of the simulation data:<BR /><BR />
 
 
 
-Points Mode (SDL_SCANCODE_1)
-Description: Renders the 3D grid as a point cloud, with each point colored based on its computed_scalar and scalar_4d values (at a time-dependent w_slice).
-
-Color Mapping:
-Red: Normalized computed_scalar.
-
-Green: Normalized scalar_4d scaled by 0.5.
-
-Blue: Inverse of computed_scalar scaled by 0.5.
-
-Use Case: Visualizes scalar field distributions (e.g., density, potential) across the grid.
-
-Mathematical Context: Represents ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)
- and ϕ(x,y,z,w,t)\phi(x, y, z, w, t)\phi(x, y, z, w, t)
-
-
-
-Isosurface Mode (SDL_SCANCODE_2)
-Description: Uses Marching Cubes to render isosurfaces of computed_scalar at a dynamic isovalue \text{iso_level} = \min(\phi) + (\max(\phi) - \min(\phi)) \cdot (0.3 + 0.2 \sin(t)).
-
-Features:
-Colors from scalar_4d, with normals computed via finite differences for smooth lighting.
-
-Uses VBOs for efficient triangle mesh rendering.
-
-Use Case: Visualizes equipotential surfaces or density contours (e.g., gravitational fields, wave fronts).
-
-Mathematical Context: Displays level sets {(x,y,z)∣ϕ(x,y,z,t)=c}\{ (x, y, z) \mid \phi(x, y, z, t) = c \}\{ (x, y, z) \mid \phi(x, y, z, t) = c \}
-
-
-
-Wireframe Mode (SDL_SCANCODE_3)
-Description: Renders the grid as a wireframe, with lines connecting adjacent points. Line colors are based on computed_scalar and scalar_4d, with z-positions offset by the scalar value.
-
-Use Case: Highlights grid structure and scalar field gradients in sparse data.
-
-Mathematical Context: Visualizes grid connectivity and ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)
- as z-perturbations.
-
-Particles Mode (SDL_SCANCODE_4)
-Description: Renders particles as points with velocity trails. Colors are based on speed (vx2+vy2+vz2\sqrt{v_x^2 + v_y^2 + v_z^2}\sqrt{v_x^2 + v_y^2 + v_z^2}
-), with red proportional to speed, green fixed, and blue inversely proportional.
-
-Use Case: Tracks particle motion under forces (e.g., gravitational, electromagnetic).
-
-Mathematical Context: Shows phase space trajectories governed by a=f(x,v,t)\mathbf{a} = f(\mathbf{x}, \mathbf{v}, t)\mathbf{a} = f(\mathbf{x}, \mathbf{v}, t)
-
-
-
-Hybrid Mode (SDL_SCANCODE_5)
-Description: Combines Points and Particles modes, rendering both the grid-based scalar field and particle system.
-
-Use Case: Analyzes field-particle interactions (e.g., particles in a potential field).
-
-Mathematical Context: Visualizes ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)
- and particle dynamics together.
-
-
-
-Surface Mode (SDL_SCANCODE_6)
-Description: Renders a 2D surface in the x-y plane at z=size/2z = \text{size}/2z = \text{size}/2
-, with height proportional to computed_scalar. Colors are based on scalar_4d, with lighting for depth.
-
-Use Case: Studies 2D field slices (e.g., wave propagation, temperature distributions).
-
-Mathematical Context: Displays z=ϕ(x,y,z0,t)z = \phi(x, y, z_0, t)z = \phi(x, y, z_0, t)
- with 4D color mapping.
-
-
-
-Sphere Points Mode (SDL_SCANCODE_7)
-
+Points Mode (SDL_SCANCODE_1)<BR />
+Description: Renders the 3D grid as a point cloud, with each point colored based on its computed_scalar and scalar_4d values (at a time-dependent w_slice).<BR />
+<BR />
+Color Mapping:<BR />
+Red: Normalized computed_scalar.<BR />
+<BR />
+Green: Normalized scalar_4d scaled by 0.5.<BR />
+<BR />
+Blue: Inverse of computed_scalar scaled by 0.5.<BR />
+<BR />
+Use Case: Visualizes scalar field distributions (e.g., density, potential) across the grid.<BR />
+<BR />
+Mathematical Context: Represents ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)<BR />
+ and ϕ(x,y,z,w,t)\phi(x, y, z, w, t)\phi(x, y, z, w, t)<BR />
+<BR />
+<BR />
+Isosurface Mode (SDL_SCANCODE_2)<BR />
+Description: Uses Marching Cubes to render isosurfaces of computed_scalar at a dynamic isovalue \text{iso_level} = \min(\phi) + (\max(\phi) - \min(\phi)) \cdot (0.3 + 0.2 \sin(t))<BR />
+<BR />
+Features:<BR />
+Colors from scalar_4d, with normals computed via finite differences for smooth lighting.<BR />
+<BR />
+Uses VBOs for efficient triangle mesh rendering.<BR />
+<BR />
+Use Case: Visualizes equipotential surfaces or density contours (e.g., gravitational fields, wave fronts).<BR />
+<BR />
+Mathematical Context: Displays level sets {(x,y,z)∣ϕ(x,y,z,t)=c}\{ (x, y, z) \mid \phi(x, y, z, t) = c \}\{ (x, y, z) \mid \phi(x, y, z, t) = c \}<BR />
+<BR />
+<BR />
+Wireframe Mode (SDL_SCANCODE_3)<BR />
+Description: Renders the grid as a wireframe, with lines connecting adjacent points. Line colors are based on computed_scalar and scalar_4d, with z-positions offset by the scalar value.<BR />
+<BR />
+Use Case: Highlights grid structure and scalar field gradients in sparse data.<BR />
+<BR />
+Mathematical Context: Visualizes grid connectivity and ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)<BR />
+ as z-perturbations<BR />
+<BR />
+<BR />
+Particles Mode (SDL_SCANCODE_4)<BR />
+Description: Renders particles as points with velocity trails. Colors are based on speed (vx2+vy2+vz2\sqrt{v_x^2 + v_y^2 + v_z^2}\sqrt{v_x^2 + v_y^2 + v_z^2}<BR />
+), with red proportional to speed, green fixed, and blue inversely proportional.<BR />
+<BR />
+Use Case: Tracks particle motion under forces (e.g., gravitational, electromagnetic).<BR />
+<BR />
+Mathematical Context: Shows phase space trajectories governed by a=f(x,v,t)\mathbf{a} = f(\mathbf{x}, \mathbf{v}, t)\mathbf{a} = f(\mathbf{x}, \mathbf{v}, t)<BR />
+<BR />
+<BR />
+Hybrid Mode (SDL_SCANCODE_5)<BR />
+Description: Combines Points and Particles modes, rendering both the grid-based scalar field and particle system.<BR />
+<BR />
+Use Case: Analyzes field-particle interactions (e.g., particles in a potential field).<BR />
+<BR />
+Mathematical Context: Visualizes ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)<BR />
+ and particle dynamics together<BR />
+<BR />
+<BR />
+Surface Mode (SDL_SCANCODE_6)<BR />
+Description: Renders a 2D surface in the x-y plane at z=size/2z = \text{size}/2z = \text{size}/2<BR />
+, with height proportional to computed_scalar. Colors are based on scalar_4d, with lighting for depth.<BR />
+<BR />
+Use Case: Studies 2D field slices (e.g., wave propagation, temperature distributions).<BR />
+<BR />
+Mathematical Context: Displays z=ϕ(x,y,z0,t)z = \phi(x, y, z_0, t)z = \phi(x, y, z_0, t)<BR />
+ with 4D color mapping<BR />
+<BR />
+<BR />
+Sphere Points Mode (SDL_SCANCODE_7)<BR />
+<BR />
 Description: Renders a semi-transparent sphere composed of large, colorful points representing the scalar field values within a spherical region. Points are larger and denser than in Points mode, with semi-transparency to enhance visibility of overlapping regions and reduce gaps.
-Use Case: Ideal for visualizing scalar field distributions in a compact, spherical domain, emphasizing field intensity and structure without the cubic boundaries of Points mode. Suitable for applications like gravitational or electromagnetic field analysis.
-
-Mathematical Context: Visualizes the scalar field ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)
- within a spherical region defined by x2+y2+z2≤r2x^2 + y^2 + z^2 \leq r^2x^2 + y^2 + z^2 \leq r^2
-, where (r) is the radius derived from the grid size. Colors are mapped to normalized field values, with red indicating higher values, green lower values, and blue as a constant base, scaled by visualization intensity.
-
+Use Case: Ideal for visualizing scalar field distributions in a compact, spherical domain, emphasizing field intensity and structure without the cubic boundaries of Points mode. Suitable for applications like gravitational or electromagnetic field analysis.<BR />
+<BR />
+Mathematical Context: Visualizes the scalar field ϕ(x,y,z,t)\phi(x, y, z, t)\phi(x, y, z, t)<BR />
+ within a spherical region defined by x2+y2+z2≤r2x^2 + y^2 + z^2 \leq r^2x^2 + y^2 + z^2 \leq r^2<BR />
+, where (r) is the radius derived from the grid size. Colors are mapped to normalized field values, with red indicating higher values, green lower values, and blue as a constant base, scaled by visualization intensity<BR />
+<BR />
 --------<BR />
-
+<BR />
 Equation System
 The Simulator supports two equation types, defined in equations.h and implemented in equations.cpp:
 CustomEquation
