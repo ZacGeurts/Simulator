@@ -2,9 +2,11 @@
 # Custom equations designed to showcase diverse, visually stunning displays
 # Each equation uses the CustomEquation class with unique expressions and parameters
 
-# my tests
-Ricci_Divergence custom eq=∇μRμν3D(t)=H1D(α)gμν+Iμν3D−4D(t)+ϵμν5D(t) H1D=1.5 D_t=0.15 eps_5D=0.015 I0=0.1 D0=0.2 FiveD0=0.1 alpha=1.0 vis_scale=1.3 vis_color_intensity=1.4
-Ricci_Tensor custom eq=Rμν3D(t)=H1D(α)gμν+Tμν3D(t)+Fμν4D(t)+ϵμν5D(t) H1D=2.0 D_t=0.2 eps_5D=0.02 I0=0.2 D0=0.3 FiveD0=0.15 alpha=1.2 vis_scale=1.5 vis_color_intensity=1.5
+# my tests - Creation
+Ricci_Divergence custom eq=H1D+I0*cos(D_t*t)*sin(D0*r)+eps_5D*sin(FiveD0*t) H1D=1.5 D_t=0.15 eps_5D=0.015 I0=0.1 D0=0.2 FiveD0=0.1 alpha=1.0 vis_scale=1.3 vis_color_intensity=1.4 r=sqrt(x*x+y*y+z*z)
+Ricci_Tensor custom eq=H1D+I0*sin(D_t*t)*cos(D0*r)+eps_5D*cos(FiveD0*t) H1D=2.0 D_t=0.2 eps_5D=0.02 I0=0.2 D0=0.3 FiveD0=0.15 alpha=1.2 vis_scale=1.5 vis_color_intensity=1.5 r=sqrt(x*x+y*y+z*z)
+Laser_Ricci_Divergence custom eq=H1D+I0*(cos(D0*x-D_t*t)+cos(D0*z-D_t*t))+eps_5D*sin(FiveD0*t) H1D=1.5 D_t=0.15 eps_5D=0.015 I0=0.1 D0=0.2 FiveD0=0.1 alpha=1.0 vis_scale=1.3 vis_color_intensity=1.4
+Laser_Ricci_Tensor custom eq=H1D+I0*(sin(D0*x-D_t*t)+sin(D0*z-D_t*t))+eps_5D*cos(FiveD0*t) H1D=2.0 D_t=0.2 eps_5D=0.02 I0=0.2 D0=0.3 FiveD0=0.15 alpha=1.2 vis_scale=1.5 vis_color_intensity=1.5
 
 # 1. Gravitational Potential (Inverse-square field, smooth isosurfaces)
 Gravitational_Potential custom eq=-G*mass1/(r+0.01) G=6.67430e-11 mass1=5.972e24 vis_scale=1.5 vis_color_intensity=1.2
