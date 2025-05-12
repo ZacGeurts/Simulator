@@ -17,7 +17,7 @@ I have mental health issues, so if you think this is useful to you, go ahead and
 <BR /><BR />
 # Overview
 <BR />
-The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. (5D) always exists but assume it is smaller than observation influence (Unless viewed from (4D), which is out of this scope. Always enough to move the scale.<BR />
+The Simulator is a powerful, open-source computational tool designed for physicists, mathematicians, and computational scientists to model and visualize complex physical systems in three-dimensional (3D) and four-dimensional (4D) spaces. (5D) always exists but assume it is smaller than observation influence (Unless viewed from (4D), which is out of this scope. Always enough to move the scale. As it is out of this scope you can assume that as merely my opinion.<BR />
 Developed using C++, SDL2, OpenGL, and SDL_ttf GLEW and cmake/make<BR />
 The Simulator provides a robust platform for simulating particle-based and grid-based physical phenomena governed by user-defined equations. It supports real-time rendering in multiple visualization modes, including point clouds, isosurfaces, wireframes, particle trajectories, hybrid displays, and 2D surfaces, making it ideal for studying dynamical systems, field theories, and tensor-based physics.
 <BR /><BR />
