@@ -1,4 +1,5 @@
-![alt text](shots/shot1.png)<BR />
+![alt text](shots/shot1.png)![alt text](shots/shot2.png)<BR />
+![alt text](shots/shot3.png)![alt text](shots/shot4.png)<BR />
 If you have issues it is probably in log.txt so it may help you along the way.<BR />
 I am a computer nerd and geek and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
