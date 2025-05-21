@@ -101,7 +101,7 @@ equations: Vector of Equation objects defining the physics.
 
 The simulation advances in real-time using a timer (16 ms interval, ~60 FPS), updating particle positions, grid fields, and rendering the scene. The rendering pipeline uses OpenGL with GLEW for vertex buffer objects (VBOs) and SDL_ttf for displaying the current equation name.
 Visualization Modes
-The Simulator supports six visualization modes, selectable via key bindings, each tailored to different aspects of the simulation data:<BR /><BR />
+The Simulator supports seven visualization modes, selectable via key bindings, each tailored to different aspects of the simulation data:<BR /><BR />
 <BR />
 I can be lazy. SDL_SCANCODE just means press the 1 or 2 or 3 key, etc.<BR />
 <BR />
