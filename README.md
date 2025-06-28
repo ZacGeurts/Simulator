@@ -11,7 +11,8 @@ If you have issues it is probably in log.txt so it may help you along the way.<B
 The equations file in build directory is for you to edit and the main is a backup.
 I am a computer nerd and geek and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
-I think there are some small issues yet with parsing some equations as I want better parsing for more structures.<BR /><BR />
+There are some small issues yet with changing from the first equation not clearing properly<BR />
+After changing an equation press or click P to reset it. There are tooltips for the rest.<BR />
 <BR />
 It is easiest to paste your equation into AI along with equations.txt and ask it to make your equation compatible, rather than scratch your head.<BR />
 <BR />
