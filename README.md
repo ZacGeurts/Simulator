@@ -1,6 +1,14 @@
 ![alt text](shots/shot1.png)![alt text](shots/shot2.png)<BR />
 ![alt text](shots/shot3.png)![alt text](shots/shot4.png)<BR />
 If you have issues it is probably in log.txt so it may help you along the way.<BR />
+`git clone https://github.com/ZacGeurts/Simulator`<BR />
+`cd Simulator`<BR />
+`mkdir build`<BR />
+`cd build`<BR />
+`cmake ..`<BR />
+`make`<BR />
+`./simulation`<BR />
+The equations file in build directory is for you to edit and the main is a backup.
 I am a computer nerd and geek and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
 I think there are some small issues yet with parsing some equations as I want better parsing for more structures.<BR /><BR />
