@@ -333,8 +333,8 @@ int main() {
                     case SDL_SCANCODE_S:
                         {
                             std::lock_guard<std::mutex> lock(sim_mutex);
-                            if (!sim.equations.empty()) {
-                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation])) {
+                            if (!sim.equations.empty() && sim.current_equation < sim.equations.size()) {
+                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())) {
                                     double current_scale = eq->getVisScale();
                                     current_scale *= 1.1;
                                     eq->setVisScale(current_scale);
@@ -347,8 +347,8 @@ int main() {
                     case SDL_SCANCODE_A:
                         {
                             std::lock_guard<std::mutex> lock(sim_mutex);
-                            if (!sim.equations.empty()) {
-                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation])) {
+                            if (!sim.equations.empty() && sim.current_equation < sim.equations.size()) {
+                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())) {
                                     double current_scale = eq->getVisScale();
                                     current_scale /= 1.1;
                                     eq->setVisScale(current_scale);
@@ -361,8 +361,8 @@ int main() {
                     case SDL_SCANCODE_W:
                         {
                             std::lock_guard<std::mutex> lock(sim_mutex);
-                            if (!sim.equations.empty()) {
-                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation])) {
+                            if (!sim.equations.empty() && sim.current_equation < sim.equations.size()) {
+                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())) {
                                     double current_intensity = eq->getVisColorIntensity();
                                     current_intensity *= 1.1;
                                     eq->setVisColorIntensity(current_intensity);
@@ -375,8 +375,8 @@ int main() {
                     case SDL_SCANCODE_Q:
                         {
                             std::lock_guard<std::mutex> lock(sim_mutex);
-                            if (!sim.equations.empty()) {
-                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation])) {
+                            if (!sim.equations.empty() && sim.current_equation < sim.equations.size()) {
+                                if (auto* eq = dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())) {
                                     double current_intensity = eq->getVisColorIntensity();
                                     current_intensity /= 1.1;
                                     eq->setVisColorIntensity(current_intensity);

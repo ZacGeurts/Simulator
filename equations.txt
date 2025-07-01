@@ -1,6 +1,6 @@
 # Custom Equations (Gravitational, electromagnetic, quantum, and other physical phenomena)
 # 1. Unified Field (Higher-dimensional Ricci scalar)
-Unified_Field custom eq=1.4796*sum(d=5,100,exp(-0.01*d*t)/(d*d*d*d)) H0=1.0e-18 c=299792458.0 epsilon0=0.1 L0=1.0 alpha=0.01 vis_scale=1.5 vis_color_intensity=1.4
+UnifiedField refined sum(H=1e-18 eps=0.1 L0=1 scale=1.4796 alpha=0.01 d_max=100 n_max=50 c=299792458.0 conv_th=1e-20)
 # Visual: Smooth, time-decaying scalar field with contributions from higher dimensions, uniform isosurfaces with subtle temporal fading, representing a higher-dimensional curvature field
 
 # 2. One Dimension God (R_{\mu\nu}(t) = H \sum_{n=2}^{\infty} \epsilon_n \frac{c^2}{L_n^2} g_{\mu\nu}, 1D as God, unifying all dimensions with Love)
