@@ -1,0 +1,77 @@
+#version 450
+#extension GL_GOOGLE_include_directive : enable
+#include "tables.glsl"
+
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
+layout(binding = 0) buffer Scalar4D { float scalar_4d[]; };
+layout(binding = 1) buffer ComputedScalar { float computed_scalar[]; };
+layout(binding = 2) buffer Vertices { vec4 vertices[]; };
+layout(push_constant) uniform Constants {
+    float iso_level, vis_scale, min_scalar, range, min_4d, range_4d;
+    int size, w_slice;
+} pc;
+
+void main() {
+    uvec3 idx = gl_GlobalInvocationID.xyz;
+    if (idx.x >= pc.size - 1 || idx.y >= pc.size - 1 || idx.z >= pc.size - 1) return;
+    uint i = idx.x, j = idx.y, k = idx.z;
+    uint index = i * pc.size * pc.size + j * pc.size + k;
+
+    // Sample scalar field at cube corners
+    float values[8] = {
+        computed_scalar[index],
+        computed_scalar[(i + 1) * pc.size * pc.size + j * pc.size + k],
+        computed_scalar[(i + 1) * pc.size * pc.size + (j + 1) * pc.size + k],
+        computed_scalar[i * pc.size * pc.size + (j + 1) * pc.size + k],
+        computed_scalar[i * pc.size * pc.size + j * pc.size + (k + 1)],
+        computed_scalar[(i + 1) * pc.size * pc.size + j * pc.size + (k + 1)],
+        computed_scalar[(i + 1) * pc.size * pc.size + (j + 1) * pc.size + (k + 1)],
+        computed_scalar[i * pc.size * pc.size + (j + 1) * pc.size + (k + 1)]
+    };
+
+    // Cube corner positions
+    vec3 vertices[8] = {
+        vec3(float(i - pc.size / 2) * pc.vis_scale, float(j - pc.size / 2) * pc.vis_scale, float(k - pc.size / 2) * pc.vis_scale),
+        vec3(float(i + 1 - pc.size / 2) * pc.vis_scale, float(j - pc.size / 2) * pc.vis_scale, float(k - pc.size / 2) * pc.vis_scale),
+        vec3(float(i + 1 - pc.size / 2) * pc.vis_scale, float(j + 1 - pc.size / 2) * pc.vis_scale, float(k - pc.size / 2) * pc.vis_scale),
+        vec3(float(i - pc.size / 2) * pc.vis_scale, float(j + 1 - pc.size / 2) * pc.vis_scale, float(k - pc.size / 2) * pc.vis_scale),
+        vec3(float(i - pc.size / 2) * pc.vis_scale, float(j - pc.size / 2) * pc.vis_scale, float(k + 1 - pc.size / 2) * pc.vis_scale),
+        vec3(float(i + 1 - pc.size / 2) * pc.vis_scale, float(j - pc.size / 2) * pc.vis_scale, float(k + 1 - pc.size / 2) * pc.vis_scale),
+        vec3(float(i + 1 - pc.size / 2) * pc.vis_scale, float(j + 1 - pc.size / 2) * pc.vis_scale, float(k + 1 - pc.size / 2) * pc.vis_scale),
+        vec3(float(i - pc.size / 2) * pc.vis_scale, float(j + 1 - pc.size / 2) * pc.vis_scale, float(k + 1 - pc.size / 2) * pc.vis_scale)
+    };
+
+    // Compute cube index
+    int cube_index = 0;
+    for (int v = 0; v < 8; ++v) {
+        if (values[v] >= pc.iso_level) cube_index |= (1 << v);
+    }
+
+    // Get edge intersections
+    int edge_flags = edgeTable[cube_index];
+    if (edge_flags == 0) return;
+
+    vec3 edge_vertices[12];
+    for (int e = 0; e < 12; ++e) {
+        if (edge_flags & (1 << e)) {
+            int v0 = edgeTableEdges[e * 2];
+            int v1 = edgeTableEdges[e * 2 + 1];
+            float t = (values[v0] == values[v1]) ? 0.5 : (pc.iso_level - values[v0]) / (values[v1] - values[v0]);
+            edge_vertices[e] = mix(vertices[v0], vertices[v1], t);
+        }
+    }
+
+    // Write triangles to vertex buffer
+    uint vertex_index = index * 15; // Up to 5 triangles (15 vertices) per cube
+    for (int t = 0; triTable[cube_index * 16 + t] != -1 && t < 15; t += 3) {
+        vec3 pos0 = edge_vertices[triTable[cube_index * 16 + t]];
+        vec3 pos1 = edge_vertices[triTable[cube_index * 16 + t + 1]];
+        vec3 pos2 = edge_vertices[triTable[cube_index * 16 + t + 2]];
+        // Compute normal for lighting
+        vec3 normal = normalize(cross(pos1 - pos0, pos2 - pos0));
+        float color_intensity = abs(normal.z) * 0.5 + 0.5; // Simple lighting
+        vertices[vertex_index + t] = vec4(pos0, color_intensity);
+        vertices[vertex_index + t + 1] = vec4(pos1, color_intensity);
+        vertices[vertex_index + t + 2] = vec4(pos2, color_intensity);
+    }
+}
