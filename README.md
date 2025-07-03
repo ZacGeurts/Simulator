@@ -12,9 +12,10 @@ The equations file in build directory is for you to edit and the main is a backu
 I am a computer nerd and geek and wanted to check out something I figured out along the way so I worked with AI to make this.<BR />
 I am interested if this is useful to anyone and let me know if there are issues. If you try it and it makes sense or maybe it is broken then feel free to drop me a line by opening a ticket.<BR />
 There are some small issues yet with changing from the first equation not clearing properly<BR />
-After changing an equation press or click P to reset it. There are tooltips for the rest.<BR />
+After changing an equation press or click P to reset it (reset it! bug). There are tooltips for the rest.<BR />
 <BR />
 It is easiest to paste your equation into AI along with equations.txt and ask it to make your equation compatible, rather than scratch your head.<BR />
+Have it tell you any concessions it may have made to placing your equation within an acceptable format, I can help if you want a rareity added.<BR />
 <BR />
 If anyone thinks this is cool or useful, let me know and I might make a decent manual, for now you should probably just bookmark it or download README.md and get something that reads markdown like VSCode or one of the various other readers.
 <BR /><BR />
