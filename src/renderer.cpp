@@ -1,7 +1,9 @@
 #include "renderer.h"
 #include "menu.h"
+#include "globals.h"
 #include <SDL3/SDL_vulkan.h>
-#include <vk_mem_alloc.h> // Updated include for VMA (header-only)
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
@@ -11,21 +13,7 @@
 #include <fstream>
 #include "tables.h"
 
-// Global variables
-float camera_zoom = 0.3f, camera_angle = 0.0f, camera_tilt = 0.0f;
-DisplayMode current_display_mode = POINTS;
-
-// Logging function
-void log_message(const std::string& message) {
-    static std::set<std::string> logged_messages;
-    std::ofstream log("log.txt", std::ios::app);
-    if (log.is_open() && logged_messages.find(message) == logged_messages.end()) {
-        std::time_t now = std::time(nullptr);
-        log << "[" << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S") << "] " << message << "\n";
-        logged_messages.insert(message);
-        log.close();
-    }
-}
+// Logging function (already defined in globals.cpp, so no need to redefine here)
 
 // Load SPIR-V shader from file
 std::vector<char> read_spirv_file(const std::string& filename) {
@@ -57,10 +45,18 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     appInfo.pApplicationName = "Physics Simulator";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_3;
-    uint32_t extensionCount;
-    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr);
+
+    unsigned int extensionCount;
+    if (!SDL_Vulkan_GetInstanceExtensions(&extensionCount)) {
+        log_message("Failed to get Vulkan instance extension count");
+        return false;
+    }
     std::vector<const char*> extensions(extensionCount);
-    SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensions.data());
+    if (!SDL_Vulkan_GetInstanceExtensions(&extensionCount)) {
+        log_message("Failed to get Vulkan instance extensions");
+        return false;
+    }
+
     VkInstanceCreateInfo createInfo = {VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledExtensionCount = extensionCount;
@@ -79,20 +75,27 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(ctx.instance, &deviceCount, devices.data());
     ctx.physicalDevice = devices[0];
+
     uint32_t queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(ctx.physicalDevice, &queueFamilyCount, nullptr);
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(ctx.physicalDevice, &queueFamilyCount, queueFamilies.data());
     uint32_t graphicsFamily = UINT32_MAX, computeFamily = UINT32_MAX, presentFamily = UINT32_MAX;
+    VkSurfaceKHR surface;
+    if (!SDL_Vulkan_CreateSurface(window, ctx.instance, nullptr, &surface)) {
+        log_message("Failed to create Vulkan surface");
+        return false;
+    }
     for (uint32_t i = 0; i < queueFamilyCount; ++i) {
         if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) graphicsFamily = i;
         if (queueFamilies[i].queueFlags & VK_QUEUE_COMPUTE_BIT) computeFamily = i;
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(ctx.physicalDevice, i, ctx.surface, &presentSupport);
+        vkGetPhysicalDeviceSurfaceSupportKHR(ctx.physicalDevice, i, surface, &presentSupport);
         if (presentSupport) presentFamily = i;
     }
     if (graphicsFamily == UINT32_MAX || computeFamily == UINT32_MAX || presentFamily == UINT32_MAX) {
         log_message("Failed to find required queue families");
+        vkDestroySurfaceKHR(ctx.instance, surface, nullptr);
         return false;
     }
 
@@ -116,17 +119,13 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
     if (vkCreateDevice(ctx.physicalDevice, &deviceCreateInfo, nullptr, &ctx.device) != VK_SUCCESS) {
         log_message("Failed to create Vulkan device");
+        vkDestroySurfaceKHR(ctx.instance, surface, nullptr);
         return false;
     }
     vkGetDeviceQueue(ctx.device, graphicsFamily, 0, &ctx.graphicsQueue);
     vkGetDeviceQueue(ctx.device, computeFamily, 0, &ctx.computeQueue);
     vkGetDeviceQueue(ctx.device, presentFamily, 0, &ctx.presentQueue);
 
-    VkSurfaceKHR surface;
-    if (!SDL_Vulkan_CreateSurface(window, ctx.instance, nullptr, &surface)) {
-        log_message("Failed to create Vulkan surface");
-        return false;
-    }
     ctx.surface = surface;
 
     VkSwapchainCreateInfoKHR swapchainInfo = {VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
@@ -218,27 +217,26 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
         {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, imageCount},
         {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, imageCount * 3}
     };
-    VkDescriptorPoolCreateInfo poolInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
-    poolInfo.poolSizeCount = 2;
-    poolInfo.pPoolSizes = poolSizes;
-    poolInfo.maxSets = imageCount;
-    if (vkCreateDescriptorPool(ctx.device, &poolInfo, nullptr, &ctx.descriptorPool) != VK_SUCCESS) {
+    VkDescriptorPoolCreateInfo descriptorPoolInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
+    descriptorPoolInfo.poolSizeCount = 2;
+    descriptorPoolInfo.pPoolSizes = poolSizes;
+    descriptorPoolInfo.maxSets = imageCount;
+    if (vkCreateDescriptorPool(ctx.device, &descriptorPoolInfo, nullptr, &ctx.descriptorPool) != VK_SUCCESS) {
         log_message("Failed to create descriptor pool");
         return false;
     }
 
     ctx.descriptorSets.resize(imageCount);
     std::vector<VkDescriptorSetLayout> layouts(imageCount, ctx.descriptorSetLayout);
-    VkDescriptorSetAllocateInfo allocInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
-    allocInfo.descriptorPool = ctx.descriptorPool;
-    allocInfo.descriptorSetCount = imageCount;
-    allocInfo.pSetLayouts = layouts.data();
-    if (vkAllocateDescriptorSets(ctx.device, &allocInfo, ctx.descriptorSets.data()) != VK_SUCCESS) {
+    VkDescriptorSetAllocateInfo descriptorAllocInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO};
+    descriptorAllocInfo.descriptorPool = ctx.descriptorPool;
+    descriptorAllocInfo.descriptorSetCount = imageCount;
+    descriptorAllocInfo.pSetLayouts = layouts.data();
+    if (vkAllocateDescriptorSets(ctx.device, &descriptorAllocInfo, ctx.descriptorSets.data()) != VK_SUCCESS) {
         log_message("Failed to allocate descriptor sets");
         return false;
     }
 
-    // Load SPIR-V shaders
     std::vector<char> vertexShaderCode = read_spirv_file("../vert.spv");
     std::vector<char> fragmentShaderCode = read_spirv_file("../frag.spv");
     std::vector<char> computeShaderCode = read_spirv_file("../compute.comp.spv");
@@ -268,7 +266,7 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     viewportState.pScissors = &scissor;
     VkPipelineRasterizationStateCreateInfo rasterizer = {VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO};
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_NONE; // Disable culling to avoid missing triangles
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     VkPipelineMultisampleStateCreateInfo multisampling = {VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
     multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
     VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
@@ -320,11 +318,12 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
         return false;
     }
 
-    // Buffer creation with optimized sizes
     VkBufferCreateInfo bufferInfo = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     bufferInfo.size = sizeof(glm::mat4) + sizeof(float) * 2 + sizeof(int);
     bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-    VmaAllocationCreateInfo allocInfo = {0, VMA_MEMORY_USAGE_AUTO, VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT};
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     if (vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &ctx.uniformBuffer, &ctx.uniformAlloc, nullptr) != VK_SUCCESS) {
         log_message("Failed to create uniform buffer");
         return false;
@@ -340,8 +339,7 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
         log_message("Failed to create scalar_4d buffer");
         return false;
     }
-    // Vertex buffer size: up to 15 vertices per cube (5 triangles * 3 vertices)
-    bufferInfo.size = sim.size * sim.size * sim.size * 15 * sizeof(float) * 6; // pos (3) + color (3)
+    bufferInfo.size = sim.size * sim.size * sim.size * 15 * sizeof(float) * 6;
     bufferInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     if (vmaCreateBuffer(ctx.allocator, &bufferInfo, &allocInfo, &ctx.vertexBuffer, &ctx.vertexAlloc, nullptr) != VK_SUCCESS) {
         log_message("Failed to create vertex buffer");
@@ -353,7 +351,6 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
         return false;
     }
 
-    // Update descriptor sets
     for (uint32_t i = 0; i < imageCount; ++i) {
         VkDescriptorBufferInfo uniformInfo = {ctx.uniformBuffer, 0, sizeof(glm::mat4) + sizeof(float) * 2 + sizeof(int)};
         VkDescriptorBufferInfo scalarInfo = {ctx.scalarBuffer, 0, sim.size * sim.size * sim.size * sizeof(float)};
@@ -368,10 +365,10 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
         vkUpdateDescriptorSets(ctx.device, 4, descriptorWrites, 0, nullptr);
     }
 
-    VkCommandPoolCreateInfo poolInfo = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
-    poolInfo.queueFamilyIndex = graphicsFamily;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    if (vkCreateCommandPool(ctx.device, &poolInfo, nullptr, &ctx.commandPool) != VK_SUCCESS) {
+    VkCommandPoolCreateInfo commandPoolInfo = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+    commandPoolInfo.queueFamilyIndex = graphicsFamily;
+    commandPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    if (vkCreateCommandPool(ctx.device, &commandPoolInfo, nullptr, &ctx.commandPool) != VK_SUCCESS) {
         log_message("Failed to create command pool");
         return false;
     }
@@ -399,16 +396,25 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     init_info.Instance = ctx.instance;
     init_info.PhysicalDevice = ctx.physicalDevice;
     init_info.Device = ctx.device;
+    init_info.QueueFamily = graphicsFamily;
     init_info.Queue = ctx.graphicsQueue;
+    init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = ctx.descriptorPool;
+    init_info.Subpass = 0;
     init_info.MinImageCount = imageCount;
     init_info.ImageCount = imageCount;
-    ImGui_ImplVulkan_Init(&init_info, ctx.renderPass);
+    init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    init_info.Allocator = nullptr;
+    init_info.CheckVkResultFn = nullptr;
+    if (!ImGui_ImplVulkan_Init(&init_info)) {
+        log_message("Failed to initialize ImGui Vulkan backend");
+        return false;
+    }
 
     return true;
 }
 
-void render(const Simulation& sim, VulkanContext& ctx, Menu& menu) {
+void render(Simulation& sim, VulkanContext& ctx, Menu& menu) {
     vkWaitForFences(ctx.device, 1, &ctx.inFlightFence, VK_TRUE, UINT64_MAX);
     vkResetFences(ctx.device, 1, &ctx.inFlightFence);
 
@@ -426,11 +432,11 @@ void render(const Simulation& sim, VulkanContext& ctx, Menu& menu) {
     } uniforms;
     uniforms.vis_scale = sim.equations.empty() ? 1.0f : dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())->getVisScale();
     uniforms.vis_color_intensity = sim.equations.empty() ? 1.0f : dynamic_cast<CustomEquation*>(sim.equations[sim.current_equation].get())->getVisColorIntensity();
-    uniforms.vis_scale *= camera_zoom; // Apply camera zoom
-    uniforms.display_mode = current_display_mode;
+    uniforms.vis_scale *= global_state.camera_zoom;
+    uniforms.display_mode = static_cast<int>(global_state.current_display_mode);
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.01f, 100.0f);
-    float cam_dist = 5.0f / camera_zoom;
-    glm::vec3 eye(cam_dist * glm::cos(camera_angle), cam_dist * glm::sin(camera_angle), cam_dist * std::sin(camera_tilt));
+    float cam_dist = 5.0f / global_state.camera_zoom;
+    glm::vec3 eye(cam_dist * glm::cos(global_state.camera_angle), cam_dist * glm::sin(global_state.camera_angle), cam_dist * std::sin(global_state.camera_tilt));
     glm::mat4 view = glm::lookAt(eye, glm::vec3(0), glm::vec3(0, 0, 1));
     uniforms.view_projection = projection * view;
     void* data;
@@ -438,32 +444,32 @@ void render(const Simulation& sim, VulkanContext& ctx, Menu& menu) {
     memcpy(data, &uniforms, sizeof(Uniforms));
     vmaUnmapMemory(ctx.allocator, ctx.uniformAlloc);
 
-    double max_scalar = 1e-10, min_scalar = 1e10, max_4d = 1e-10, min_4d = 1e10;
+    float max_scalar = 1e-10f, min_scalar = 1e10f, max_4d = 1e-10f, min_4d = 1e10f;
     for (int i = 0; i < sim.size; ++i)
         for (int j = 0; j < sim.size; ++j)
             for (int k = 0; k < sim.size; ++k) {
-                max_scalar = std::max(max_scalar, (double)sim.computed_scalar[i][j][k]);
-                min_scalar = std::min(min_scalar, (double)sim.computed_scalar[i][j][k]);
+                max_scalar = std::max(max_scalar, static_cast<float>(sim.computed_scalar[i][j][k]));
+                min_scalar = std::min(min_scalar, static_cast<float>(sim.computed_scalar[i][j][k]));
                 for (int w = 0; w < sim.size; ++w) {
-                    max_4d = std::max(max_4d, (double)sim.scalar_4d[i][j][k][w]);
-                    min_4d = std::min(min_4d, (double)sim.scalar_4d[i][j][k][w]);
+                    max_4d = std::max(max_4d, static_cast<float>(sim.scalar_4d[i][j][k][w]));
+                    min_4d = std::min(min_4d, static_cast<float>(sim.scalar_4d[i][j][k][w]));
                 }
             }
-    double range = max_scalar - min_scalar ? max_scalar - min_scalar : 1.0;
-    double range_4d = max_4d - min_4d ? max_4d - min_4d : 1.0;
-    float iso_level = min_scalar + range * (0.3 + 0.2 * std::sin(sim.t));
+    float range = max_scalar - min_scalar ? max_scalar - min_scalar : 1.0f;
+    float range_4d = max_4d - min_4d ? max_4d - min_4d : 1.0f;
+    float iso_level = min_scalar + range * (0.3f + 0.2f * std::sin(static_cast<float>(sim.t)));
     int w_slice = static_cast<int>(sim.t * 2) % sim.size;
 
     struct PushConstants {
         float iso_level, vis_scale, min_scalar, range, min_4d, range_4d;
         int size, w_slice;
-    } pushConstants = {iso_level, uniforms.vis_scale, (float)min_scalar, (float)range, (float)min_4d, (float)range_4d, sim.size, w_slice};
+    } pushConstants = {iso_level, uniforms.vis_scale, min_scalar, range, min_4d, range_4d, sim.size, w_slice};
 
     std::vector<float> scalar_data(sim.size * sim.size * sim.size);
     for (int i = 0; i < sim.size; ++i)
         for (int j = 0; j < sim.size; ++j)
             for (int k = 0; k < sim.size; ++k)
-                scalar_data[i * sim.size * sim.size + j * sim.size + k] = sim.computed_scalar[i][j][k];
+                scalar_data[i * sim.size * sim.size + j * sim.size + k] = static_cast<float>(sim.computed_scalar[i][j][k]);
     vmaMapMemory(ctx.allocator, ctx.scalarAlloc, &data);
     memcpy(data, scalar_data.data(), scalar_data.size() * sizeof(float));
     vmaUnmapMemory(ctx.allocator, ctx.scalarAlloc);
@@ -472,19 +478,20 @@ void render(const Simulation& sim, VulkanContext& ctx, Menu& menu) {
         for (int j = 0; j < sim.size; ++j)
             for (int k = 0; k < sim.size; ++k)
                 for (int w = 0; w < sim.size; ++w)
-                    scalar4d_data[i * sim.size * sim.size * sim.size + j * sim.size * sim.size + k * sim.size + w] = sim.scalar_4d[i][j][k][w];
+                    scalar4d_data[i * sim.size * sim.size * sim.size + j * sim.size * sim.size + k * sim.size + w] = static_cast<float>(sim.scalar_4d[i][j][k][w]);
     vmaMapMemory(ctx.allocator, ctx.scalar4DAlloc, &data);
     memcpy(data, scalar4d_data.data(), scalar4d_data.size() * sizeof(float));
     vmaUnmapMemory(ctx.allocator, ctx.scalar4DAlloc);
 
     std::vector<float> particle_data;
-    if (current_display_mode == PARTICLES || current_display_mode == HYBRID) {
+    if (global_state.current_display_mode == DisplayMode::PARTICLES || global_state.current_display_mode == DisplayMode::HYBRID) {
         particle_data.reserve(sim.particles.size() * 6);
         for (const auto& p : sim.particles) {
-            float speed = std::sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz);
+            float speed = std::sqrt(static_cast<float>(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz));
             float r = std::min(speed / 5.0f, 1.0f) * uniforms.vis_color_intensity;
             particle_data.insert(particle_data.end(), {
-                p.x, p.y, p.z, r, 0.5f * uniforms.vis_color_intensity, (1.0f - r) * uniforms.vis_color_intensity
+                static_cast<float>(p.x), static_cast<float>(p.y), static_cast<float>(p.z),
+                r, 0.5f * uniforms.vis_color_intensity, (1.0f - r) * uniforms.vis_color_intensity
             });
         }
         vmaMapMemory(ctx.allocator, ctx.particleAlloc, &data);
@@ -503,33 +510,29 @@ void render(const Simulation& sim, VulkanContext& ctx, Menu& menu) {
     renderPassInfo.pClearValues = &clearColor;
     vkCmdBeginRenderPass(ctx.commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    // Compute pass
-    if (current_display_mode == ISOSURFACE || current_display_mode == HYBRID) {
+    if (global_state.current_display_mode == DisplayMode::ISOSURFACE || global_state.current_display_mode == DisplayMode::HYBRID) {
         vkCmdBindPipeline(ctx.commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_COMPUTE, ctx.computePipeline);
         vkCmdBindDescriptorSets(ctx.commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_COMPUTE, ctx.pipelineLayout, 0, 1, &ctx.descriptorSets[imageIndex], 0, nullptr);
         vkCmdPushConstants(ctx.commandBuffers[imageIndex], ctx.pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &pushConstants);
         vkCmdDispatch(ctx.commandBuffers[imageIndex], (sim.size + 7) / 8, (sim.size + 7) / 8, (sim.size + 7) / 8);
-        // Add memory barrier to ensure compute shader completes before vertex fetch
         VkMemoryBarrier barrier = {VK_STRUCTURE_TYPE_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
         vkCmdPipelineBarrier(ctx.commandBuffers[imageIndex], VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 1, &barrier, 0, nullptr, 0, nullptr);
     }
 
-    // Graphics pass
     vkCmdBindPipeline(ctx.commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.graphicsPipeline);
     vkCmdBindDescriptorSets(ctx.commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, ctx.pipelineLayout, 0, 1, &ctx.descriptorSets[imageIndex], 0, nullptr);
     VkDeviceSize offsets[] = {0};
-    if (current_display_mode == PARTICLES || current_display_mode == HYBRID) {
+    if (global_state.current_display_mode == DisplayMode::PARTICLES || global_state.current_display_mode == DisplayMode::HYBRID) {
         vkCmdBindVertexBuffers(ctx.commandBuffers[imageIndex], 0, 1, &ctx.particleBuffer, offsets);
         vkCmdDraw(ctx.commandBuffers[imageIndex], sim.particles.size(), 1, 0, 0);
     }
-    if (current_display_mode == ISOSURFACE || current_display_mode == HYBRID) {
+    if (global_state.current_display_mode == DisplayMode::ISOSURFACE || global_state.current_display_mode == DisplayMode::HYBRID) {
         vkCmdBindVertexBuffers(ctx.commandBuffers[imageIndex], 0, 1, &ctx.vertexBuffer, offsets);
         vkCmdDraw(ctx.commandBuffers[imageIndex], sim.size * sim.size * sim.size * 15, 1, 0, 0);
     }
 
-    // ImGui rendering
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();

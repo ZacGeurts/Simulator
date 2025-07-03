@@ -6,21 +6,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
-#include <VulkanMemoryAllocator/include/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 #include "equations.h"
 
-enum DisplayMode {
+enum class DisplayMode {
     PARTICLES, POINTS, ISOSURFACE, SURFACE, WIREFRAME, SPHERE_POINTS, HYBRID
 };
-
-extern float camera_zoom, camera_angle, camera_tilt;
-extern DisplayMode current_display_mode;
 
 struct VulkanContext {
     VkInstance instance;
     VkPhysicalDevice physicalDevice;
     VkDevice device;
-    VkQueue graphicsQueue, computeQueue;
+    VkQueue graphicsQueue, computeQueue, presentQueue;
+    VkSurfaceKHR surface;
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
@@ -41,7 +39,7 @@ struct VulkanContext {
 };
 
 bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim);
-void render(const Simulation& sim, VulkanContext& ctx, class Menu& menu);
+void render(Simulation& sim, VulkanContext& ctx, class Menu& menu);
 void cleanup_renderer(VulkanContext& ctx);
 
 #endif

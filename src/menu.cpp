@@ -1,5 +1,6 @@
 #include "menu.h"
 #include "globals.h"
+#include "renderer.h"
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <mutex>
@@ -19,7 +20,7 @@ bool Menu::init(SDL_Window* window, Simulation& sim) {
 }
 
 void Menu::render(Simulation& sim) {
-    std::lock_guard<std::mutex> lock(sim_mutex);
+    std::lock_guard<std::mutex> lock(global_state.sim_mutex);
 
     ImGui::Begin("Controls", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::SetWindowPos(ImVec2(10, 200)); // Match original menu position
@@ -27,96 +28,96 @@ void Menu::render(Simulation& sim) {
     // Row 1: Display modes
     ImGui::Text("Display Modes");
     if (ImGui::Button("1##Points")) {
-        current_display_mode = POINTS;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::POINTS;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Points mode");
     ImGui::SameLine();
     if (ImGui::Button("2##Isosurface")) {
-        current_display_mode = ISOSURFACE;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::ISOSURFACE;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Isosurface mode");
     ImGui::SameLine();
     if (ImGui::Button("3##Wireframe")) {
-        current_display_mode = WIREFRAME;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::WIREFRAME;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Wireframe mode");
     ImGui::SameLine();
     if (ImGui::Button("4##Particles")) {
-        current_display_mode = PARTICLES;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::PARTICLES;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Particles mode");
     ImGui::SameLine();
     if (ImGui::Button("5##Hybrid")) {
-        current_display_mode = HYBRID;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::HYBRID;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Hybrid mode");
     ImGui::SameLine();
     if (ImGui::Button("6##Surface")) {
-        current_display_mode = SURFACE;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::SURFACE;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Surface mode");
     ImGui::SameLine();
     if (ImGui::Button("7##Sphere")) {
-        current_display_mode = SPHERE_POINTS;
-        needs_render = true;
+        global_state.current_display_mode = DisplayMode::SPHERE_POINTS;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Sphere mode");
     ImGui::SameLine();
     if (ImGui::Button("0##Center")) {
-        camera_angle = 0.0f;
-        camera_tilt = 0.0f;
-        camera_zoom = 0.3f;
-        needs_render = true;
+        global_state.camera_angle = 0.0f;
+        global_state.camera_tilt = 0.0f;
+        global_state.camera_zoom = 0.3f;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Center camera");
 
-    // Row 2: Camera navigation (arrow keys)
+    // Row 2: Camera navigation
     ImGui::Text("Camera Navigation");
     if (ImGui::Button("Up##ZoomIn")) {
-        camera_zoom *= 0.95f;
-        camera_zoom = std::max(camera_zoom, 0.001f);
-        needs_render = true;
+        global_state.camera_zoom *= 0.95f;
+        global_state.camera_zoom = std::max(global_state.camera_zoom, 0.001f);
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Zoom in");
     ImGui::SameLine();
     if (ImGui::Button("Left##PrevEq")) {
         sim.prev_equation();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Previous equation");
     ImGui::SameLine();
     if (ImGui::Button("Right##NextEq")) {
         sim.next_equation();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Next equation");
     ImGui::SameLine();
     if (ImGui::Button("Down##ZoomOut")) {
-        camera_zoom *= 1.05f;
-        camera_zoom = std::min(camera_zoom, 5.0f);
-        needs_render = true;
+        global_state.camera_zoom *= 1.05f;
+        global_state.camera_zoom = std::min(global_state.camera_zoom, 5.0f);
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Zoom out");
 
     // Row 3: Simulation controls
     ImGui::Text("Simulation Controls");
     if (ImGui::Button("Space##Pause")) {
-        is_paused = !is_paused;
-        rotate_camera = !is_paused;
-        needs_render = true;
+        global_state.is_paused = !global_state.is_paused;
+        global_state.rotate_camera = !global_state.is_paused;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Toggle pause");
     ImGui::SameLine();
     if (ImGui::Button("Enter##Step")) {
-        if (is_paused) {
+        if (global_state.is_paused) {
             sim.step();
-            needs_render = true;
+            global_state.needs_render = true;
         }
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Step simulation (if paused)");
@@ -124,33 +125,33 @@ void Menu::render(Simulation& sim) {
     // Row 4: Camera pan/tilt (if paused)
     ImGui::Text("Camera Pan/Tilt (Paused)");
     if (ImGui::Button("C##PanLeft")) {
-        if (is_paused) {
-            camera_angle -= 0.01f;
-            needs_render = true;
+        if (global_state.is_paused) {
+            global_state.camera_angle -= 0.01f;
+            global_state.needs_render = true;
         }
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Pan camera left (if paused)");
     ImGui::SameLine();
     if (ImGui::Button("V##PanRight")) {
-        if (is_paused) {
-            camera_angle += 0.01f;
-            needs_render = true;
+        if (global_state.is_paused) {
+            global_state.camera_angle += 0.01f;
+            global_state.needs_render = true;
         }
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Pan camera right (if paused)");
     ImGui::SameLine();
     if (ImGui::Button("B##TiltUp")) {
-        if (is_paused) {
-            camera_tilt += 0.01f;
-            needs_render = true;
+        if (global_state.is_paused) {
+            global_state.camera_tilt += 0.01f;
+            global_state.needs_render = true;
         }
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Tilt camera up (if paused)");
     ImGui::SameLine();
     if (ImGui::Button("G##TiltDown")) {
-        if (is_paused) {
-            camera_tilt -= 0.01f;
-            needs_render = true;
+        if (global_state.is_paused) {
+            global_state.camera_tilt -= 0.01f;
+            global_state.needs_render = true;
         }
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Tilt camera down (if paused)");
@@ -164,7 +165,7 @@ void Menu::render(Simulation& sim) {
                 current_scale /= 1.1;
                 eq->setVisScale(current_scale);
                 sim.compute();
-                needs_render = true;
+                global_state.needs_render = true;
             }
         }
     }
@@ -177,7 +178,7 @@ void Menu::render(Simulation& sim) {
                 current_scale *= 1.1;
                 eq->setVisScale(current_scale);
                 sim.compute();
-                needs_render = true;
+                global_state.needs_render = true;
             }
         }
     }
@@ -190,7 +191,7 @@ void Menu::render(Simulation& sim) {
                 current_intensity /= 1.1;
                 eq->setVisColorIntensity(current_intensity);
                 sim.compute();
-                needs_render = true;
+                global_state.needs_render = true;
             }
         }
     }
@@ -203,7 +204,7 @@ void Menu::render(Simulation& sim) {
                 current_intensity *= 1.1;
                 eq->setVisColorIntensity(current_intensity);
                 sim.compute();
-                needs_render = true;
+                global_state.needs_render = true;
             }
         }
     }
@@ -219,7 +220,7 @@ void Menu::render(Simulation& sim) {
         sim.scalar_4d.resize(sim.size, std::vector<std::vector<std::vector<long double>>>(
             sim.size, std::vector<std::vector<long double>>(sim.size, std::vector<long double>(sim.size, 0.0L))));
         sim.setup();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Increase grid size");
     ImGui::SameLine();
@@ -231,46 +232,46 @@ void Menu::render(Simulation& sim) {
         sim.scalar_4d.resize(sim.size, std::vector<std::vector<std::vector<long double>>>(
             sim.size, std::vector<std::vector<long double>>(sim.size, std::vector<long double>(sim.size, 0.0L))));
         sim.setup();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Decrease grid size");
     ImGui::SameLine();
     if (ImGui::Button("R##ResetSim")) {
-        camera_angle = 0.0f;
-        camera_tilt = 0.0f;
-        camera_zoom = 0.3f;
+        global_state.camera_angle = 0.0f;
+        global_state.camera_tilt = 0.0f;
+        global_state.camera_zoom = 0.3f;
         sim.t = 0.0;
         sim.setup();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Reset simulation");
     ImGui::SameLine();
     if (ImGui::Button("P##ResetParticles")) {
         sim.particles.clear();
         sim.setup();
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Reset particles");
 
     // Row 7: Fullscreen and quit
     ImGui::Text("Window and Exit");
     if (ImGui::Button("F##Fullscreen")) {
-        is_fullscreen = !is_fullscreen;
-        if (is_fullscreen) {
-            if (SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN_DESKTOP) < 0) {
+        global_state.is_fullscreen = !global_state.is_fullscreen;
+        if (global_state.is_fullscreen) {
+            if (SDL_SetWindowFullscreen(window_, SDL_WINDOW_FULLSCREEN) < 0) {
                 log_message("Failed to switch to fullscreen: " + std::string(SDL_GetError()));
-                is_fullscreen = false;
+                global_state.is_fullscreen = false;
             }
         } else {
             if (SDL_SetWindowFullscreen(window_, 0) < 0) {
                 log_message("Failed to switch to windowed mode: " + std::string(SDL_GetError()));
-                is_fullscreen = true;
+                global_state.is_fullscreen = true;
             } else {
                 SDL_SetWindowSize(window_, 800, 600);
                 SDL_SetWindowPosition(window_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
         }
-        needs_render = true;
+        global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Toggle fullscreen");
     ImGui::SameLine();

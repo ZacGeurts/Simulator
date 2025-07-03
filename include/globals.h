@@ -3,22 +3,32 @@
 
 #include <SDL3/SDL.h>
 #include <mutex>
-#include "renderer.h"
+#include <string>
+#include "equations.h" // Include for Simulation
 
-extern std::mutex sim_mutex;
-extern Simulation sim;
-extern DisplayMode current_display_mode;
-extern float camera_angle;
-extern float camera_tilt;
-extern float camera_zoom;
-extern bool rotate_camera;
-extern bool is_paused;
-extern bool needs_render;
-extern bool is_fullscreen;
-extern SDL_TimerID timer_id;
+// Forward declaration of DisplayMode to avoid including renderer.h
+enum class DisplayMode; // Use enum class for stronger typing
+
+// GlobalState struct to encapsulate global variables
+struct GlobalState {
+    std::mutex sim_mutex;
+    Simulation sim;
+    DisplayMode current_display_mode;
+    float camera_angle = 0.0f;
+    float camera_tilt = 0.0f;
+    float camera_zoom = 0.3f;
+    bool rotate_camera = true;
+    bool is_paused = false;
+    bool needs_render = true;
+    bool is_fullscreen = true;
+    SDL_TimerID timer_id = 0;
+};
+
+// Single global instance
+extern GlobalState global_state;
 
 void log_message(const std::string& message);
-Uint32 timer(Uint32 interval, void* param);
+Uint32 timer(void* param, SDL_TimerID timerID, Uint32 interval); // Updated for SDL3
 void cleanup_ttf();
 
 #endif // GLOBALS_H
