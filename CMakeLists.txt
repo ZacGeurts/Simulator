@@ -11,7 +11,7 @@ if (NOT SDL3_FOUND)
 endif()
 
 # Find Vulkan
-find_package(Vulkan REQUIRED COMPONENTS glslc glslangValidator)
+find_package(Vulkan REQUIRED COMPONENTS glslc)
 if (NOT Vulkan_FOUND)
     message(FATAL_ERROR "Vulkan not found. Install Vulkan SDK (e.g., 'sudo apt install vulkan-sdk' on Ubuntu or download from https://vulkan.lunarg.com/).")
 endif()
@@ -22,10 +22,10 @@ if (NOT glm_FOUND)
     message(FATAL_ERROR "GLM not found. Install GLM development libraries (e.g., 'sudo apt install libglm-dev' on Ubuntu).")
 endif()
 
-# Check for glslangValidator
-find_program(GLSLANG_VALIDATOR glslangValidator HINTS ${Vulkan_GLSLANG_VALIDATOR_EXECUTABLE})
-if (NOT GLSLANG_VALIDATOR)
-    message(FATAL_ERROR "glslangValidator not found. Install glslang-tools (e.g., 'sudo apt install glslang-tools' on Ubuntu).")
+# Check for glslc
+find_program(GLSLC glslc HINTS ${Vulkan_GLSLC_EXECUTABLE})
+if (NOT GLSLC)
+    message(FATAL_ERROR "glslc not found. Install glslc (e.g., 'sudo apt install glslc' on Ubuntu).")
 endif()
 
 # ImGui: Add as source files (assumes imgui/ directory in project root)
@@ -80,16 +80,39 @@ target_link_libraries(simulation PRIVATE
 
 # Shader compilation (assumes shaders in shaders/ directory)
 set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
-file(GLOB SHADERS "${SHADER_DIR}/*.vert" "${SHADER_DIR}/*.frag" "${SHADER_DIR}/*.comp" "${SHADER_DIR}/*.glsl")
+file(GLOB SHADERS "${SHADER_DIR}/*.vert" "${SHADER_DIR}/*.frag" "${SHADER_DIR}/*.comp" "${SHADER_DIR}/frag.glsl" "${SHADER_DIR}/vert.glsl")
+set(SHADER_SPVS)
 foreach(SHADER ${SHADERS})
     get_filename_component(SHADER_NAME ${SHADER} NAME)
+    get_filename_component(SHADER_EXT ${SHADER} EXT)
+    
+    # Skip include files like tables.glsl
+    if (SHADER_NAME MATCHES "tables.glsl")
+        continue()
+    endif()
+
+    set(SHADER_OUTPUT ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv)
+    # Determine dependencies (e.g., tables.glsl for compute.comp)
+    set(SHADER_DEPS ${SHADER})
+    if (SHADER_NAME MATCHES "compute.comp")
+        list(APPEND SHADER_DEPS ${SHADER_DIR}/tables.glsl)
+    endif()
+
+    # Determine shader stage for .glsl files
+    set(SHADER_STAGE_FLAG "")
+    if (SHADER_NAME MATCHES "frag.glsl")
+        set(SHADER_STAGE_FLAG "-fshader-stage=frag")
+    elseif (SHADER_NAME MATCHES "vert.glsl")
+        set(SHADER_STAGE_FLAG "-fshader-stage=vert")
+    endif()
+
     add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv
-        COMMAND ${GLSLANG_VALIDATOR} -V ${SHADER} -o ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv
-        DEPENDS ${SHADER}
+        OUTPUT ${SHADER_OUTPUT}
+        COMMAND ${GLSLC} --target-env=vulkan1.2 ${SHADER_STAGE_FLAG} ${SHADER} -o ${SHADER_OUTPUT}
+        DEPENDS ${SHADER_DEPS}
         COMMENT "Compiling ${SHADER_NAME} to SPIR-V"
     )
-    list(APPEND SHADER_SPVS ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv)
+    list(APPEND SHADER_SPVS ${SHADER_OUTPUT})
 endforeach()
 
 # Custom target for shaders
