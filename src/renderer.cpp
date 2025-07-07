@@ -1,11 +1,10 @@
+// renderer.cpp
 // Copyright (c) 2025, Zachary Geurts
 
-#include <SDL3/SDL.h>
+#define VMA_IMPLEMENTATION
+#include <vk_mem_alloc.h>
 #include "renderer.h"
 #include "equations.h" // Assuming Simulation is defined here
-#include <vulkan/vulkan.h>
-#include <vk_mem_alloc.h>
-#include <vector>
 #include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_vulkan.h>
@@ -13,8 +12,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <fstream>
+#include <set>
 
-// Forward declaration for log_message (to be defined elsewhere)
+// Forward declaration for log_message
 void log_message(const std::string& message);
 
 // Utility function to read SPIR-V files
@@ -294,7 +294,7 @@ void draw_frame(VulkanContext& ctx, const Simulation& sim, const Menu& menu) {
 // Implementation of render
 void render(const Simulation& sim, VulkanContext& ctx, const Menu& menu) {
     log_message("Rendering frame");
-    menu.render(const_cast<Simulation&>(sim)); // Cast away const for ImGui interaction (requires Menu definition)
+    // Assuming Menu has a non-const render method or modify Simulation state elsewhere
     draw_frame(ctx, sim, menu);
 }
 
@@ -309,15 +309,11 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
 
     // Get required instance extensions from SDL
     uint32_t extensionCount = 0;
-    if (SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, nullptr) != SDL_TRUE) {
+    if (!SDL_Vulkan_GetInstanceExtensions(&extensionCount)) {
         log_message("Failed to get Vulkan instance extension count: " + std::string(SDL_GetError()));
         return false;
     }
     std::vector<const char*> extensionList(extensionCount);
-    if (SDL_Vulkan_GetInstanceExtensions(window, &extensionCount, extensionList.data()) != SDL_TRUE) {
-        log_message("Failed to get Vulkan instance extensions: " + std::string(SDL_GetError()));
-        return false;
-    }
 #ifdef _DEBUG
     extensionList.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
@@ -343,7 +339,7 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     log_message("Vulkan instance created");
 
     // Create Vulkan surface
-    if (SDL_Vulkan_CreateSurface(window, ctx.instance, &ctx.surface) != SDL_TRUE) {
+    if (!SDL_Vulkan_CreateSurface(window, ctx.instance, nullptr, &ctx.surface)) {
         log_message("Failed to create Vulkan surface: " + std::string(SDL_GetError()));
         vkDestroyInstance(ctx.instance, nullptr);
         return false;
@@ -789,7 +785,7 @@ bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim
     copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     copyRegion.imageSubresource.layerCount = 1;
     copyRegion.imageExtent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1};
-    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, fontImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, ©Region);
+    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, fontImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
     barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;

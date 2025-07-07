@@ -3,11 +3,14 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
 #include <vk_mem_alloc.h>
 #include <vector>
 
-// Forward declaration of Menu to avoid circular dependencies
+// Forward declarations
+class Simulation;
 class Menu;
 
 struct VulkanContext {
@@ -55,7 +58,7 @@ bool create_swapchain(SDL_Window* window, VulkanContext& ctx);
 VkCommandBuffer begin_single_time_commands(VulkanContext& ctx);
 void end_single_time_commands(VulkanContext& ctx, VkCommandBuffer commandBuffer);
 void cleanup_renderer(VulkanContext& ctx);
-void draw_frame(VulkanContext& ctx, const Simulation& sim, const Menu& menu); // Changed MenuState to Menu
-void render(const Simulation& sim, VulkanContext& ctx, const Menu& menu); // Changed MenuState to Menu
+void draw_frame(VulkanContext& ctx, const Simulation& sim, const Menu& menu);
+void render(const Simulation& sim, VulkanContext& ctx, const Menu& menu);
 
 #endif

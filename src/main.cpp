@@ -11,8 +11,8 @@ int main() {
         return 1;
     }
 
-    // Create window with 4:3 resolution (800x600), resizable
-    SDL_Window* window = SDL_CreateWindow("Physics Visualization", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    // Create window with resizable
+    SDL_Window* window = SDL_CreateWindow("Physics Visualization", 640, 480, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     if (!window) {
         log_message("Window creation failed: " + std::string(SDL_GetError()));
         SDL_Quit();
