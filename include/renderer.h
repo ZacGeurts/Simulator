@@ -1,45 +1,61 @@
+// Copyright (c) 2025, Zachary Geurts
+
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <SDL3/SDL.h>
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <vector>
 #include <vk_mem_alloc.h>
-#include "equations.h"
+#include <vector>
 
-enum class DisplayMode {
-    PARTICLES, POINTS, ISOSURFACE, SURFACE, WIREFRAME, SPHERE_POINTS, HYBRID
-};
+// Forward declaration of Menu to avoid circular dependencies
+class Menu;
 
 struct VulkanContext {
-    VkInstance instance;
-    VkPhysicalDevice physicalDevice;
-    VkDevice device;
-    VkQueue graphicsQueue, computeQueue, presentQueue;
-    VkSurfaceKHR surface;
-    VkSwapchainKHR swapchain;
+    VkInstance instance = VK_NULL_HANDLE;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device = VK_NULL_HANDLE;
+    VkQueue graphicsQueue = VK_NULL_HANDLE;
+    VkQueue computeQueue = VK_NULL_HANDLE;
+    VkQueue presentQueue = VK_NULL_HANDLE;
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    VmaAllocator allocator = VK_NULL_HANDLE;
     std::vector<VkImage> swapchainImages;
-    std::vector<VkImageView> swapchainImageViews;
-    std::vector<VkFramebuffer> framebuffers;
-    VkRenderPass renderPass;
-    VkPipelineLayout pipelineLayout;
-    VkPipeline graphicsPipeline, computePipeline;
-    VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkDescriptorPool descriptorPool;
+    VkFormat swapchainFormat;
+    VkExtent2D swapchainExtent;
+    VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+    VkRenderPass renderPass = VK_NULL_HANDLE;
+    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+    VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+    VkPipeline computePipeline = VK_NULL_HANDLE;
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
-    VkBuffer uniformBuffer, scalarBuffer, scalar4DBuffer, vertexBuffer, particleBuffer;
-    VmaAllocation uniformAlloc, scalarAlloc, scalar4DAlloc, vertexAlloc, particleAlloc;
-    VmaAllocator allocator;
-    VkSemaphore imageAvailableSemaphore, renderFinishedSemaphore;
-    VkFence inFlightFence;
+    VkCommandPool commandPool = VK_NULL_HANDLE;
+    std::vector<VkCommandBuffer> commandBuffers;
+    VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
+    VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
+    VkFence inFlightFence = VK_NULL_HANDLE;
+    VkBuffer uniformBuffer = VK_NULL_HANDLE;
+    VmaAllocation uniformAlloc = VK_NULL_HANDLE;
+    VkBuffer scalarBuffer = VK_NULL_HANDLE;
+    VmaAllocation scalarAlloc = VK_NULL_HANDLE;
+    VkBuffer scalar4DBuffer = VK_NULL_HANDLE;
+    VmaAllocation scalar4DAlloc = VK_NULL_HANDLE;
+    VkBuffer vertexBuffer = VK_NULL_HANDLE;
+    VmaAllocation vertexAlloc = VK_NULL_HANDLE;
+    VkBuffer particleBuffer = VK_NULL_HANDLE;
+    VmaAllocation particleAlloc = VK_NULL_HANDLE;
+    VkImage fontImage = VK_NULL_HANDLE;
+    VmaAllocation fontImageAlloc = VK_NULL_HANDLE;
+    VkImageView fontImageView = VK_NULL_HANDLE;
 };
 
 bool init_renderer(SDL_Window* window, VulkanContext& ctx, const Simulation& sim);
-void render(Simulation& sim, VulkanContext& ctx, class Menu& menu);
+bool create_swapchain(SDL_Window* window, VulkanContext& ctx);
+VkCommandBuffer begin_single_time_commands(VulkanContext& ctx);
+void end_single_time_commands(VulkanContext& ctx, VkCommandBuffer commandBuffer);
 void cleanup_renderer(VulkanContext& ctx);
+void draw_frame(VulkanContext& ctx, const Simulation& sim, const Menu& menu); // Changed MenuState to Menu
+void render(const Simulation& sim, VulkanContext& ctx, const Menu& menu); // Changed MenuState to Menu
 
 #endif

@@ -13,7 +13,7 @@ Menu::~Menu() {
 
 bool Menu::init(SDL_Window* window, Simulation& sim) {
     window_ = window;
-    // ImGui is initialized in renderer.cpp
+    // ImGui is initialized in renderer.cpp, so no need to reinitialize here
     ImGuiIO& io = ImGui::GetIO();
     io.FontGlobalScale = 1.5f; // Increase font size by 1.5x for better visibility
     return true;
@@ -28,43 +28,43 @@ void Menu::render(Simulation& sim) {
     // Row 1: Display modes
     ImGui::Text("Display Modes");
     if (ImGui::Button("1##Points")) {
-        global_state.current_display_mode = DisplayMode::POINTS;
+        global_state.current_display_mode = global_state.DisplayMode::POINTS;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Points mode");
     ImGui::SameLine();
     if (ImGui::Button("2##Isosurface")) {
-        global_state.current_display_mode = DisplayMode::ISOSURFACE;
+        global_state.current_display_mode = global_state.DisplayMode::ISOSURFACE;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Isosurface mode");
     ImGui::SameLine();
     if (ImGui::Button("3##Wireframe")) {
-        global_state.current_display_mode = DisplayMode::WIREFRAME;
+        global_state.current_display_mode = global_state.DisplayMode::WIREFRAME;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Wireframe mode");
     ImGui::SameLine();
     if (ImGui::Button("4##Particles")) {
-        global_state.current_display_mode = DisplayMode::PARTICLES;
+        global_state.current_display_mode = global_state.DisplayMode::PARTICLES;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Particles mode");
     ImGui::SameLine();
     if (ImGui::Button("5##Hybrid")) {
-        global_state.current_display_mode = DisplayMode::HYBRID;
+        global_state.current_display_mode = global_state.DisplayMode::HYBRID;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Hybrid mode");
     ImGui::SameLine();
     if (ImGui::Button("6##Surface")) {
-        global_state.current_display_mode = DisplayMode::SURFACE;
+        global_state.current_display_mode = global_state.DisplayMode::SURFACE;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Surface mode");
     ImGui::SameLine();
     if (ImGui::Button("7##Sphere")) {
-        global_state.current_display_mode = DisplayMode::SPHERE_POINTS;
+        global_state.current_display_mode = global_state.DisplayMode::SPHERE_POINTS;
         global_state.needs_render = true;
     }
     if (ImGui::IsItemHovered()) ImGui::SetTooltip("Sphere mode");
@@ -267,7 +267,7 @@ void Menu::render(Simulation& sim) {
                 log_message("Failed to switch to windowed mode: " + std::string(SDL_GetError()));
                 global_state.is_fullscreen = true;
             } else {
-                SDL_SetWindowSize(window_, 800, 600);
+                SDL_SetWindowSize(window_, 800, 600); // 4:3 resolution
                 SDL_SetWindowPosition(window_, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
             }
         }

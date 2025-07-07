@@ -28,7 +28,7 @@ if (NOT GLSLC)
     message(FATAL_ERROR "glslc not found. Install glslc (e.g., 'sudo apt install glslc' on Ubuntu).")
 endif()
 
-# ImGui: Add as source files (assumes imgui/ directory in project root)
+# ImGui: Add as source files
 set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/imgui)
 add_library(imgui STATIC
     ${IMGUI_DIR}/imgui.cpp
@@ -41,16 +41,27 @@ add_library(imgui STATIC
 target_include_directories(imgui PUBLIC ${IMGUI_DIR} ${IMGUI_DIR}/backends)
 target_link_libraries(imgui PUBLIC SDL3::SDL3 Vulkan::Vulkan)
 
-# Vulkan Memory Allocator (header-only)
+# Vulkan Memory Allocator
 set(VMA_DIR ${CMAKE_SOURCE_DIR}/VulkanMemoryAllocator)
-# Check if VMA header exists
 if (NOT EXISTS ${VMA_DIR}/include/vk_mem_alloc.h)
     message(FATAL_ERROR "VulkanMemoryAllocator header not found at ${VMA_DIR}/include/vk_mem_alloc.h. "
                         "Please clone VMA (e.g., 'git clone https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git' in ${CMAKE_SOURCE_DIR}).")
 endif()
-add_library(vma INTERFACE)
-target_include_directories(vma INTERFACE ${VMA_DIR}/include)
-target_link_libraries(vma INTERFACE Vulkan::Vulkan)
+
+# Check if vk_mem_alloc.cpp exists for non-header-only VMA
+set(VMA_SRC ${VMA_DIR}/src/vk_mem_alloc.cpp)
+if (EXISTS ${VMA_SRC})
+    # Build VMA as a static library if vk_mem_alloc.cpp exists
+    add_library(vma STATIC ${VMA_SRC})
+    target_include_directories(vma PUBLIC ${VMA_DIR}/include)
+    target_link_libraries(vma PUBLIC Vulkan::Vulkan)
+else()
+    # Use header-only VMA
+    add_library(vma INTERFACE)
+    target_include_directories(vma INTERFACE ${VMA_DIR}/include)
+    target_link_libraries(vma INTERFACE Vulkan::Vulkan)
+    target_compile_definitions(vma INTERFACE VMA_STATIC_VULKAN_FUNCTIONS=0 VMA_DYNAMIC_VULKAN_FUNCTIONS=1)
+endif()
 
 # Source files
 set(SOURCES
@@ -58,6 +69,7 @@ set(SOURCES
     src/renderer.cpp
     src/menu.cpp
     src/equations.cpp
+    src/globals.cpp
 )
 
 # Include directories
@@ -80,51 +92,75 @@ target_link_libraries(simulation PRIVATE
 
 # Shader compilation (assumes shaders in shaders/ directory)
 set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
-file(GLOB SHADERS "${SHADER_DIR}/*.vert" "${SHADER_DIR}/*.frag" "${SHADER_DIR}/*.comp" "${SHADER_DIR}/frag.glsl" "${SHADER_DIR}/vert.glsl")
-set(SHADER_SPVS)
-foreach(SHADER ${SHADERS})
-    get_filename_component(SHADER_NAME ${SHADER} NAME)
-    get_filename_component(SHADER_EXT ${SHADER} EXT)
-    
-    # Skip include files like tables.glsl
-    if (SHADER_NAME MATCHES "tables.glsl")
-        continue()
-    endif()
+# Check if shader directory exists
+if (NOT EXISTS ${SHADER_DIR})
+    message(WARNING "Shader directory ${SHADER_DIR} not found. Skipping shader compilation.")
+else()
+    file(GLOB SHADERS "${SHADER_DIR}/*.vert" "${SHADER_DIR}/*.frag" "${SHADER_DIR}/*.comp" "${SHADER_DIR}/frag.glsl" "${SHADER_DIR}/vert.glsl")
+    if (NOT SHADERS)
+        message(WARNING "No shader files found in ${SHADER_DIR}. Skipping shader compilation.")
+    else()
+        set(SHADER_SPVS)
+        foreach(SHADER ${SHADERS})
+            get_filename_component(SHADER_NAME ${SHADER} NAME)
+            get_filename_component(SHADER_EXT ${SHADER} EXT)
+            
+            # Skip include files like tables.glsl
+            if (SHADER_NAME MATCHES "tables.glsl")
+                continue()
+            endif()
 
-    set(SHADER_OUTPUT ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv)
-    # Determine dependencies (e.g., tables.glsl for compute.comp)
-    set(SHADER_DEPS ${SHADER})
-    if (SHADER_NAME MATCHES "compute.comp")
-        list(APPEND SHADER_DEPS ${SHADER_DIR}/tables.glsl)
-    endif()
+            set(SHADER_OUTPUT ${CMAKE_BINARY_DIR}/${SHADER_NAME}.spv)
+            # Determine dependencies (e.g., tables.glsl for compute.comp)
+            set(SHADER_DEPS ${SHADER})
+            if (SHADER_NAME MATCHES "compute.comp")
+                if (EXISTS ${SHADER_DIR}/tables.glsl)
+                    list(APPEND SHADER_DEPS ${SHADER_DIR}/tables.glsl)
+                else()
+                    message(WARNING "Dependency tables.glsl not found for compute.comp")
+                endif()
+            endif()
 
-    # Determine shader stage for .glsl files
-    set(SHADER_STAGE_FLAG "")
-    if (SHADER_NAME MATCHES "frag.glsl")
-        set(SHADER_STAGE_FLAG "-fshader-stage=frag")
-    elseif (SHADER_NAME MATCHES "vert.glsl")
-        set(SHADER_STAGE_FLAG "-fshader-stage=vert")
-    endif()
+            # Determine shader stage for .glsl files
+            set(SHADER_STAGE_FLAG "")
+            if (SHADER_NAME MATCHES "frag.glsl")
+                set(SHADER_STAGE_FLAG "-fshader-stage=frag")
+            elseif (SHADER_NAME MATCHES "vert.glsl")
+                set(SHADER_STAGE_FLAG "-fshader-stage=vert")
+            endif()
 
-    add_custom_command(
-        OUTPUT ${SHADER_OUTPUT}
-        COMMAND ${GLSLC} --target-env=vulkan1.2 ${SHADER_STAGE_FLAG} ${SHADER} -o ${SHADER_OUTPUT}
-        DEPENDS ${SHADER_DEPS}
-        COMMENT "Compiling ${SHADER_NAME} to SPIR-V"
+            add_custom_command(
+                OUTPUT ${SHADER_OUTPUT}
+                COMMAND ${GLSLC} --target-env=vulkan1.2 ${SHADER_STAGE_FLAG} ${SHADER} -o ${SHADER_OUTPUT}
+                DEPENDS ${SHADER_DEPS}
+                COMMENT "Compiling ${SHADER_NAME} to SPIR-V"
+                VERBATIM
+            )
+            list(APPEND SHADER_SPVS ${SHADER_OUTPUT})
+        endforeach()
+
+        # Custom target for shaders
+        add_custom_target(shaders DEPENDS ${SHADER_SPVS})
+        add_dependencies(simulation shaders)
+    endif()
+endif()
+
+# Copy SPIR-V shaders and binary to project root (if shaders exist)
+if (SHADER_SPVS)
+    add_custom_command(TARGET simulation POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/shaders
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${SHADER_SPVS} ${CMAKE_SOURCE_DIR}/shaders/
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:simulation> ${CMAKE_SOURCE_DIR}/simulation
+        COMMENT "Copying simulation binary and SPIR-V shaders to ${CMAKE_SOURCE_DIR}/shaders/"
+        VERBATIM
     )
-    list(APPEND SHADER_SPVS ${SHADER_OUTPUT})
-endforeach()
-
-# Custom target for shaders
-add_custom_target(shaders DEPENDS ${SHADER_SPVS})
-add_dependencies(simulation shaders)
-
-# Copy SPIR-V shaders and binary to parent directory (next to equations.txt)
-add_custom_command(TARGET simulation POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/*.spv ${CMAKE_SOURCE_DIR}/../
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:simulation> ${CMAKE_SOURCE_DIR}/../simulation
-    COMMENT "Copying simulation binary and SPIR-V shaders to ${CMAKE_SOURCE_DIR}/../"
-)
+else()
+    add_custom_command(TARGET simulation POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:simulation> ${CMAKE_SOURCE_DIR}/simulation
+        COMMENT "Copying simulation binary to ${CMAKE_SOURCE_DIR}/ (no shaders to copy)"
+        VERBATIM
+    )
+endif()
 
 # Platform-specific settings
 if (UNIX AND NOT APPLE)

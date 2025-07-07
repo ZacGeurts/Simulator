@@ -6,21 +6,26 @@
 #include <string>
 #include "equations.h" // Include for Simulation
 
-// Forward declaration of DisplayMode to avoid including renderer.h
-enum class DisplayMode; // Use enum class for stronger typing
-
 // GlobalState struct to encapsulate global variables
 struct GlobalState {
     std::mutex sim_mutex;
     Simulation sim;
-    DisplayMode current_display_mode;
+    enum class DisplayMode { // Define enum class with all required members
+        POINTS,
+        ISOSURFACE,
+        WIREFRAME,
+        PARTICLES,
+        HYBRID,
+        SURFACE,
+        SPHERE_POINTS
+    } current_display_mode = DisplayMode::POINTS; // Default to POINTS
     float camera_angle = 0.0f;
     float camera_tilt = 0.0f;
     float camera_zoom = 0.3f;
     bool rotate_camera = true;
     bool is_paused = false;
     bool needs_render = true;
-    bool is_fullscreen = true;
+    bool is_fullscreen = false; // Changed to false for 4:3 windowed start
     SDL_TimerID timer_id = 0;
 };
 

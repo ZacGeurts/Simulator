@@ -11,7 +11,8 @@ int main() {
         return 1;
     }
 
-    SDL_Window* window = SDL_CreateWindow("Physics Visualization", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_RESIZABLE);
+    // Create window with 4:3 resolution (800x600), resizable
+    SDL_Window* window = SDL_CreateWindow("Physics Visualization", 800, 600, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
     if (!window) {
         log_message("Window creation failed: " + std::string(SDL_GetError()));
         SDL_Quit();
@@ -59,6 +60,12 @@ int main() {
             menu.handle_event(e, global_state.sim);
             if (e.type == SDL_EVENT_QUIT) {
                 quit = true;
+            } else if (e.type == SDL_EVENT_WINDOW_RESIZED || e.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED) {
+                int width, height;
+                SDL_GetWindowSize(window, &width, &height);
+                log_message("Window resized to " + std::to_string(width) + "x" + std::to_string(height));
+                create_swapchain(window, ctx); // Changed to create_swapchain
+                global_state.needs_render = true;
             } else if (e.type == SDL_EVENT_KEY_DOWN) {
                 std::lock_guard<std::mutex> lock(global_state.sim_mutex);
                 switch (e.key.scancode) {
@@ -66,31 +73,31 @@ int main() {
                         quit = true;
                         break;
                     case SDL_SCANCODE_1:
-                        global_state.current_display_mode = DisplayMode::POINTS;
+                        global_state.current_display_mode = global_state.DisplayMode::POINTS;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_2:
-                        global_state.current_display_mode = DisplayMode::ISOSURFACE;
+                        global_state.current_display_mode = global_state.DisplayMode::ISOSURFACE;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_3:
-                        global_state.current_display_mode = DisplayMode::WIREFRAME;
+                        global_state.current_display_mode = global_state.DisplayMode::WIREFRAME;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_4:
-                        global_state.current_display_mode = DisplayMode::PARTICLES;
+                        global_state.current_display_mode = global_state.DisplayMode::PARTICLES;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_5:
-                        global_state.current_display_mode = DisplayMode::HYBRID;
+                        global_state.current_display_mode = global_state.DisplayMode::HYBRID;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_6:
-                        global_state.current_display_mode = DisplayMode::SURFACE;
+                        global_state.current_display_mode = global_state.DisplayMode::SURFACE;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_7:
-                        global_state.current_display_mode = DisplayMode::SPHERE_POINTS;
+                        global_state.current_display_mode = global_state.DisplayMode::SPHERE_POINTS;
                         global_state.needs_render = true;
                         break;
                     case SDL_SCANCODE_LEFT:
@@ -241,10 +248,11 @@ int main() {
                                 log_message("Failed to switch to windowed mode: " + std::string(SDL_GetError()));
                                 global_state.is_fullscreen = true;
                             } else {
-                                SDL_SetWindowSize(window, 800, 600);
+                                SDL_SetWindowSize(window, 800, 600); // Reset to 4:3
                                 SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
                             }
                         }
+                        create_swapchain(window, ctx); // Changed to create_swapchain
                         global_state.needs_render = true;
                         break;
                     default:
@@ -255,7 +263,7 @@ int main() {
 
         {
             std::lock_guard<std::mutex> lock(global_state.sim_mutex);
-            render(global_state.sim, ctx, menu);
+            render(global_state.sim, ctx, menu); // Ensure render is defined in renderer.h
         }
     }
 

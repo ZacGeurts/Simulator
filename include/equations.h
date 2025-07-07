@@ -26,7 +26,7 @@
 class Logger {
 private:
     std::mutex mutex;
-    std::vector<std::string> buffer;
+    std::vector<std::string> buffer; // Corrected syntax
     const size_t max_buffer_size = 100;
 
 public:
@@ -554,7 +554,36 @@ public:
         return valid;
     }
 
-    void compute(Simulation& sim) override;
+    void compute(Simulation& sim) override {
+        extern Logger logger;
+        std::map<std::string, long double> vars = {
+            {"H", H1D}, {"eps", eps_5D}, {"L0", 1.0L}, {"scale", scale}, {"alpha", alpha}
+        };
+        #pragma omp parallel for collapse(3)
+        for (int i = 0; i < sim.size; ++i) {
+            for (int j = 0; j < sim.size; ++j) {
+                for (int k = 0; k < sim.size; ++k) {
+                    long double x = static_cast<long double>(i - sim.size / 2) * sim.dx;
+                    long double y = static_cast<long double>(j - sim.size / 2) * sim.dx;
+                    long double z = static_cast<long double>(k - sim.size / 2) * sim.dx;
+                    long double r = std::sqrt(x * x + y * y + z * z) + 1e-6L;
+                    long double scalar = compute_sum_field(sim.t, vars, equation);
+                    scalar = std::tanh(scalar / vis_color_intensity) * vis_scale;
+                    #pragma omp critical
+                    {
+                        sim.computed_scalar[i][j][k] = scalar;
+                        sim.ricci[i][j][k].set_diagonal(scalar);
+                        for (int w = 0; w < sim.size; ++w) {
+                            long double w_coord = static_cast<long double>(w - sim.size / 2) * sim.dx;
+                            sim.scalar_4d[i][j][k][w] = scalar * (1.0L + 0.1L * std::cos(w_coord + sim.t));
+                        }
+                    }
+                }
+            }
+        }
+        sim.t += sim.dt;
+        logger.flush();
+    }
 
     std::string output(const Simulation& sim) const override {
         extern Logger logger;
@@ -715,7 +744,37 @@ public:
         return parser.validate(equation);
     }
 
-    void compute(Simulation& sim) override;
+    void compute(Simulation& sim) override {
+        extern Logger logger;
+        std::map<std::string, long double> vars = {
+            {"H", H1D}, {"eps", eps_5D}, {"L0", FiveD0}, {"scale", vis_scale}, {"alpha", alpha}
+        };
+        #pragma omp parallel for collapse(3)
+        for (int i = 0; i < sim.size; ++i) {
+            for (int j = 0; j < sim.size; ++j) {
+                for (int k = 0; k < sim.size; ++k) {
+                    long double x = static_cast<long double>(i - sim.size / 2) * sim.dx;
+                    long double y = static_cast<long double>(j - sim.size / 2) * sim.dx;
+                    long double z = static_cast<long double>(k - sim.size / 2) * sim.dx;
+                    long double r = std::sqrt(x * x + y * y + z * z) + 1e-6L;
+                    long double scalar = compute_sum_field(sim.t, vars, equation);
+                    scalar = std::tanh(scalar / vis_color_intensity) * vis_scale;
+                    #pragma omp critical
+                    {
+                        sim.computed_scalar[i][j][k] = scalar;
+                        sim.ricci[i][j][k].set_diagonal(scalar + I0);
+                        sim.divergence[i][j][k].set_diagonal(D0 * std::sin(sim.t));
+                        for (int w = 0; w < sim.size; ++w) {
+                            long double w_coord = static_cast<long double>(w - sim.size / 2) * sim.dx;
+                            sim.scalar_4d[i][j][k][w] = scalar * (1.0L + D_t_coeff * std::cos(w_coord + sim.t));
+                        }
+                    }
+                }
+            }
+        }
+        sim.t += sim.dt;
+        logger.flush();
+    }
 
     std::string output(const Simulation& sim) const override {
         extern Logger logger;
@@ -1017,7 +1076,7 @@ public:
 class RefinedEquation : public Equation {
 private:
     std::string eq_name;
-    long double phi_base, G, k4, k5;
+    long double phi_base, G, k4, k5, eps_5D;
     long double vis_scale, vis_color_intensity;
     const long double max_ld = std::numeric_limits<long double>::max();
     const long double min_ld = -std::numeric_limits<long double>::max();
@@ -1098,7 +1157,62 @@ public:
         return true;
     }
 
-    void compute(Simulation& sim) override;
+    void compute(Simulation& sim) override {
+        extern Logger logger;
+        long double phi = phi_base * (1.0L + 0.1L * std::sin(sim.t));
+        long double G_eff = G * (1.0L + k4 * std::cos(sim.t));
+        long double k5_eff = k5 * std::exp(-0.01L * sim.t);
+
+        #pragma omp parallel for collapse(3)
+        for (int i = 1; i < sim.size - 1; ++i) {
+            for (int j = 1; j < sim.size - 1; ++j) {
+                for (int k = 1; k < sim.size - 1; ++k) {
+                    long double x = static_cast<long double>(i - sim.size / 2) * sim.dx;
+                    long double y = static_cast<long double>(j - sim.size / 2) * sim.dx;
+                    long double z = static_cast<long double>(k - sim.size / 2) * sim.dx;
+                    long double r = std::sqrt(x * x + y * y + z * z) + 1e-6L;
+
+                    Tensor R;
+                    for (int mu = 0; mu < 3; ++mu) {
+                        for (int nu = 0; nu < 3; ++nu) {
+                            long double dRdx = (sim.ricci[i + 1][j][k].data[mu][nu] - sim.ricci[i - 1][j][k].data[mu][nu]) / (2 * sim.dx);
+                            long double dRdy = (sim.ricci[i][j + 1][k].data[mu][nu] - sim.ricci[i][j - 1][k].data[mu][nu]) / (2 * sim.dx);
+                            long double dRdz = (sim.ricci[i][j][k + 1].data[mu][nu] - sim.ricci[i][j][k - 1].data[mu][nu]) / (2 * sim.dx);
+                            R.data[mu][nu] = dRdx + dRdy + dRdz;
+                        }
+                    }
+
+                    Tensor T; T.set_diagonal(0.0L);
+                    Tensor F; F.set_diagonal(0.1L * std::sin(sim.t));
+                    std::map<std::string, long double> vars = {{"H", phi}, {"eps", eps_5D}, {"L0", 1.0L}, {"scale", vis_scale}, {"alpha", 0.01L}};
+                    long double eps_5D_val = compute_sum_field(sim.t, vars, "");
+                    Tensor eps_5D; eps_5D.set_diagonal(eps_5D_val * k5_eff);
+
+                    long double scalar = 0.0L;
+                    for (int m = 0; m < 3; ++m) {
+                        long double R_val = R.data[m][m];
+                        long double T_val = T.data[m][m];
+                        long double F_val = F.data[m][m];
+                        long double eps_val = eps_5D.data[m][m];
+                        scalar += (R_val - (phi * G_eff + T_val + F_val + eps_val)) * vis_scale;
+                    }
+                    scalar = std::tanh(std::abs(scalar) / vis_color_intensity);
+
+                    #pragma omp critical
+                    {
+                        sim.ricci[i][j][k] = R;
+                        sim.computed_scalar[i][j][k] = scalar;
+                        for (int w = 0; w < sim.size; ++w) {
+                            long double w_coord = static_cast<long double>(w - sim.size / 2) * sim.dx;
+                            sim.scalar_4d[i][j][k][w] = scalar * (1.0L + 0.1L * std::cos(w_coord + sim.t));
+                        }
+                    }
+                }
+            }
+        }
+        sim.t += sim.dt;
+        logger.flush();
+    }
 
     std::string output(const Simulation& sim) const override {
         extern Logger logger;
